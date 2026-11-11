@@ -6,7 +6,8 @@ from fastapi.testclient import TestClient
 
 from kittyson.cats import DailyCat, LocalProvider
 from kittyson.config import settings
-from kittyson.deps import get_daily_cat, get_weather_service
+from kittyson.deps import get_daily_cat, get_daily_fortune, get_weather_service
+from kittyson.fortune import FORTUNES, DailyFortune
 from kittyson.main import app
 from tests.conftest import make_jpeg
 
@@ -18,6 +19,11 @@ class FakeWeather:
         return "☁️ 11° 흐림 ↑14 ↓6"
 
 
+class FakeWriter:
+    async def write(self, hints, recent) -> str:
+        return "택배 상자는 나한테 온 것"
+
+
 @pytest.fixture
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     inbox = tmp_path / "cats" / "inbox"
@@ -25,9 +31,11 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     (inbox / "a.jpg").write_bytes(make_jpeg())
     monkeypatch.setattr(settings, "data_dir", tmp_path)
 
-    # No network: the cat comes from the inbox only, and the weather is canned.
+    # No network: the cat comes from the inbox only, the weather and the fortune are canned.
     cats = DailyCat([LocalProvider(inbox)], tmp_path / "cats" / "daily", size=64)
+    fortunes = DailyFortune(FakeWriter(), tmp_path / "fortunes")
     app.dependency_overrides[get_daily_cat] = lambda: cats
+    app.dependency_overrides[get_daily_fortune] = lambda: fortunes
     app.dependency_overrides[get_weather_service] = FakeWeather
 
     with TestClient(app) as c:
@@ -45,7 +53,14 @@ def test_widget_shape_and_order(client: TestClient):
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", body["date"])
     assert body["weather"] == "☁️ 11° 흐림 ↑14 ↓6"
     assert " · " in body["cat"]
+    assert body["fortune"] in FORTUNES  # the written line is not there yet on the first request
     assert r.headers["cache-control"] == "no-store"
+
+
+def test_widget_shows_the_written_fortune_once_it_is_there(client: TestClient):
+    lines = [client.get("/api/widget").json()["fortune"] for _ in range(5)]
+    assert lines[0] in FORTUNES
+    assert lines[-1] == "택배 상자는 나한테 온 것"
 
 
 def test_cat_image_is_square_jpeg(client: TestClient):

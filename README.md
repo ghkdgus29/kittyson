@@ -39,6 +39,15 @@ uv run pytest
   ```
 - 오늘의 고양이는 `data/cats/daily/YYYY-MM-DD.jpg` 에 확정된다. 바꾸고 싶으면 그 파일과 `.json` 을 지운다.
 
+## 한 마디
+
+`fortune` 은 Claude가 하루에 한 번 쓴다([fortune.py](src/kittyson/fortune.py), Claude Agent SDK). 날짜·요일·날씨·오늘의 고양이와 최근 2주 문장을 넘겨서, 그날에 어울리고 전과 겹치지 않는 한 줄을 받는다.
+
+- 그날 첫 요청 때 백그라운드로 만들어 `data/fortunes/YYYY-MM-DD.json` 에 확정한다. 만들어지기 전 몇 초 동안과, Claude를 못 부르는 날에는 기존 문장 목록에서 날짜로 고른 한 줄이 나온다.
+- 인증은 `claude` CLI와 같다. 서버는 `.env` 의 `CLAUDE_CODE_OAUTH_TOKEN`(`claude setup-token` 으로 발급) 또는 `ANTHROPIC_API_KEY`, 로컬은 `claude` 로그인 상태면 된다. 없으면 목록 문장만 쓴다.
+- 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 위젯 두 줄을 넘는 문장(22자 초과)은 버린다.
+- 오늘 문장을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_FORTUNE_MODEL`(기본 `haiku`).
+
 ## 글자색
 
 글자색은 고정이 아니라 그날 사진을 보고 정한다. 서버가 오늘의 고양이를 확정할 때 [theme.py](src/kittyson/theme.py) 가 사진 전체의 밝기와 색을 재서(JSON이 사진 전체를 덮기 때문이다) `data/cats/daily/YYYY-MM-DD.json` 에 `theme` 으로 저장한다.
@@ -75,7 +84,7 @@ Scriptable 앱용 위젯 스크립트가 `clients/scriptable/` 에 있다. 설�
 - `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
 - `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`: Tailscale OAuth 클라이언트. `tag:ci` 태그가 필요하다.
 - `SERVER_TS_IP`, `SSH_PRIVATE_KEY`: 홈랩의 `deploy` 유저
-- `ENV_FILE_CONTENT`: 선택. 서버 `.env`에 넣을 내용(`KITTYSON_LAT` 등, [.env.example](.env.example) 참고). 없으면 기본 설정으로 뜬다.
+- `ENV_FILE_CONTENT`: 선택. 서버 `.env`에 넣을 내용(`CLAUDE_CODE_OAUTH_TOKEN`, `KITTYSON_LAT` 등, [.env.example](.env.example) 참고). 없으면 기본 설정으로 뜬다.
 
 **공개 HTTPS 주소가 필요하면** Cloudflare Tunnel을 켠다. 없어도 동작한다.
 
@@ -90,6 +99,6 @@ Scriptable 앱용 위젯 스크립트가 `clients/scriptable/` 에 있다. 설�
 ### 운영
 
 - 서버에서 직접 다루기: `cd ~/kittyson && docker compose logs -f app` (`restart`, `down`도 같은 폴더에서).
-- `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`)와 직접 넣는 사진(`cats/inbox`)이 여기에 있다.
+- `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`), 직접 넣는 사진(`cats/inbox`), 날짜별 한 마디(`fortunes`)가 여기에 있다.
 
 설정은 `.env.example` 참고. 계획은 `PLAN.md`.

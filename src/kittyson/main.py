@@ -11,8 +11,8 @@ from fastapi.staticfiles import StaticFiles
 
 from kittyson import __version__, clock, deps
 from kittyson.config import settings
-from kittyson.deps import DailyCatDep, WeatherDep
-from kittyson.fortune import fortune_for
+from kittyson.deps import DailyCatDep, DailyFortuneDep, WeatherDep
+from kittyson.fortune import Hints
 from kittyson.schemas import Widget
 
 STATIC = Path(__file__).parent / "static"
@@ -23,6 +23,7 @@ MEOW = "🐱 kittyson v1"
 async def lifespan(app: FastAPI):
     settings.cats_inbox.mkdir(parents=True, exist_ok=True)
     settings.cats_daily.mkdir(parents=True, exist_ok=True)
+    settings.fortunes.mkdir(parents=True, exist_ok=True)
     deps.startup()
     try:
         yield
@@ -45,21 +46,23 @@ async def healthz():
 
 
 @app.get("/api/widget", response_model=Widget)
-async def widget(cats: DailyCatDep, weather: WeatherDep):
+async def widget(cats: DailyCatDep, weather: WeatherDep, fortune: DailyFortuneDep):
     now = clock.now(settings.tz)
     today = now.date()
 
     cat = await cats.get(today)
+    cat_line = cat.line if cat else "고양이 · missing"
     weather_line = await weather.line()
+    weekday = clock.weekday_ko(today)
 
     body = Widget(
         meow=MEOW,
         time=clock.time_str(now),
         date=clock.date_str(now),
-        weekday=clock.weekday_ko(today),
-        cat=cat.line if cat else "고양이 · missing",
+        weekday=weekday,
+        cat=cat_line,
         weather=weather_line,
-        fortune=fortune_for(today),
+        fortune=fortune.line(Hints(day=today, weekday=weekday, weather=weather_line, cat=cat_line)),
     )
     return JSONResponse(body.model_dump(), headers={"Cache-Control": "no-store"})
 

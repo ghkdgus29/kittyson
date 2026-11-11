@@ -106,14 +106,14 @@ kittyson/
 ├── src/kittyson/
 │   ├── main.py        # FastAPI 앱: /, /api/widget, /cat/today.jpg
 │   ├── config.py      # 위치(서울 위경도), 타임존, 고양이 폴더 (.env로 덮어쓰기). 싱글톤 `settings`
-│   ├── deps.py        # 라우트에 주입하는 것들(FastAPI Depends): 날씨 서비스, 오늘의 고양이. 공급자 목록도 여기
+│   ├── deps.py        # 라우트에 주입하는 것들(FastAPI Depends): 날씨 서비스, 오늘의 고양이, 오늘의 한 마디. 공급자 목록도 여기
 │   ├── schemas.py     # 위 JSON의 Pydantic 모델
 │   ├── cats/
 │   │   ├── base.py    # Provider 인터페이스, 일일 선택·캐시
 │   │   ├── local.py   # data/cats/inbox/
 │   │   └── cataas.py  # 무료 API
 │   ├── weather.py     # Open-Meteo + 30분 캐시
-│   ├── fortune.py     # 한 마디 목록, 날짜로 선택
+│   ├── fortune.py     # 한 마디: Claude가 하루 한 번 작성(Claude Agent SDK), 실패하면 목록에서 날짜로 선택
 │   └── static/
 │       ├── index.html
 │       ├── app.js     # 폴링 + 1초 시계
@@ -121,6 +121,7 @@ kittyson/
 ├── data/cats/         # git 제외
 │   ├── inbox/         # 직접 올린 사진 + 선택적 cats.json ({ "file", "name", "mood" } 목록)
 │   └── daily/         # 날짜별 확정 고양이 캐시 (1024×1024 jpg)
+├── data/fortunes/     # 날짜별 확정 한 마디 (git 제외)
 └── tests/
 ```
 
@@ -158,7 +159,8 @@ kittyson/
 - 30분 캐시. 실패하면 마지막 성공값을 그대로 내보낸다.
 
 **한 마디 (`fortune.py`)**
-- 파이썬 파일 안의 문자열 목록. 날짜 시드로 선택. 나중에 LLM 생성으로 바꿀 수 있는 자리.
+- Claude가 하루에 한 번 쓴다 (2026-11-11 변경, Claude Agent SDK). 날짜·요일·날씨·오늘의 고양이와 최근 2주 문장을 넘기고, 결과는 `data/fortunes/YYYY-MM-DD.json` 에 확정한다.
+- 백그라운드로 만든다. 만들어지기 전과 실패한 날(토큰 없음 등)에는 파이썬 파일 안의 문자열 목록에서 날짜 시드로 고른다.
 
 **시계**
 - `zoneinfo` 로 `Asia/Seoul` 현재 시각. `weekday` 는 한국어 요일.

@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     cat_size: int = 1024
 
+    # The model that writes the day's fortune. A claude CLI alias or a full model id.
+    fortune_model: str = "haiku"
+
     data_dir: Path = Path("data")
 
     host: str = "0.0.0.0"
@@ -32,6 +35,10 @@ class Settings(BaseSettings):
     @property
     def cats_daily(self) -> Path:
         return self.data_dir / "cats" / "daily"
+
+    @property
+    def fortunes(self) -> Path:
+        return self.data_dir / "fortunes"
 
 
 settings = Settings()
