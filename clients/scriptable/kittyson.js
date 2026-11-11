@@ -6,7 +6,9 @@
 //
 // Shows /api/widget from the kittyson server as raw JSON over today's cat.
 // - "time" ticks every second: iOS draws a timer counting up from midnight, which reads
-//   as the current time. Every line is drawn at the same size, like JSON in an editor.
+//   as the current time.
+// - The JSON fills the widget: one font size for every line, as big as fits, with long
+//   values wrapped onto the next row.
 // - Text colors come from /cat/today.json. The server measures today's photo and picks
 //   light or dark letters, accent colors and a halo that stay readable over it.
 //
@@ -30,17 +32,19 @@ const DEFAULT_THEME = {
   halo_alpha: 0.9,
 };
 
-// Per widget size: padding and font size as a share of the widget width.
-const LAYOUT = {
-  large: { pad: 12, base: 0.048 },
-  medium: { pad: 10, base: 0.038 },
-  small: { pad: 10, base: 0.066 },
-};
+// Space between the widget's edge and the JSON, per widget size.
+const PAD = { large: 12, medium: 10, small: 10 };
 
 const MIN_FONT = 8;
+const MAX_FONT = 40;
 const CHAR_W = 0.62;   // monospaced advance, in units of font size (slightly generous)
 const TEXT_H = 1.2;    // height of a row of text, in units of font size
-const GAP = 0.12;      // space between rows, in units of the base font size
+const GAP = 0.12;      // least space between rows, in units of font size
+const MAX_GAP = 0.6;   // most space between rows; beyond it the JSON is centered instead
+const INDENT = 2;      // indent of a key, in characters
+const HANG = 4;        // indent of the rows a long value wraps onto
+const WIDOW = 6;       // a wrapped value never leaves fewer characters than this on its last row
+const CLOCK_UNITS = 10.5; // "14:01:53" with its quotes, and the slack of the timer's box
 const TIMEOUT_S = 8;
 
 const SERVER = String(args.widgetParameter || LOADER_SERVER || DEFAULT_SERVER).trim().replace(/\/+$/, "");
@@ -259,14 +263,13 @@ function linesFor(family, data) {
   return Object.keys(data).map((k) => (k === "time" ? TIME : k === "date" ? DATE : text(k)));
 }
 
-function half(x) { return Math.floor(x * 2) / 2; }
-
 // Returns a function that styles one piece of text: size, color, halo.
 function penFor(colors) {
   return (el, size, color) => {
     el.font = Font.regularMonospacedSystemFont(size);
     el.textColor = color;
     el.lineLimit = 1;
+    el.minimumScaleFactor = 0.7; // safety net when a row is wider than estimated
     el.shadowColor = colors.halo;
     el.shadowRadius = Math.max(2.5, Math.round(size * 2) / 10);
     el.shadowOffset = new Point(0, 0);
@@ -308,66 +311,120 @@ function addClockValue(row, clock, size, colors, pen) {
   pen(row.addText(`"`), size, colors.str);
 }
 
+// A JSON line as words that are never split: the key with the start of its value, then
+// the rest of the value cut at its spaces. A word is a list of colored pieces.
+function wordsFor(line, comma, clock) {
+  const head = [{ text: `"${line.key}"`, color: "key" }, { text: ": ", color: "punct" }];
+  const tail = comma ? [{ text: ",", color: "punct" }] : [];
+  if (line.kind === "time") return [[...head, { clock: true }, ...tail]];
+  const value = line.kind === "date" ? `"${clock.date}"` : line.value;
+  const words = value.split(" ").map((text) => [{ text, color: "str" }]);
+  words[0].unshift(...head);
+  words[words.length - 1].push(...tail);
+  return words;
+}
+
+function wordUnits(word) {
+  return word.reduce((n, piece) => n + (piece.clock ? CLOCK_UNITS : units(piece.text)), 0);
+}
+
+// Break one JSON line into rows no wider than cap characters. The first row has the
+// key's indent, the following ones hang deeper. null when a single word is too wide or
+// the last row would be a stub like `v1",` (a smaller font suits such a line better).
+function wrap(words, cap) {
+  const rows = [];
+  let used = 0;
+  for (const word of words) {
+    const n = wordUnits(word);
+    if (rows.length && used + 1 + n <= cap) {
+      rows[rows.length - 1].words.push(word);
+      used += 1 + n;
+      continue;
+    }
+    const indent = rows.length ? HANG : INDENT;
+    if (indent + n > cap) return null;
+    rows.push({ indent, words: [word] });
+    used = indent + n;
+  }
+  if (rows.length > 1 && used - HANG < WIDOW) return null;
+  return rows;
+}
+
+// The JSON fills the widget: the biggest font at which every line, wrapped to the
+// widget's width, still fits its height.
+function fitJson(lines, clock, innerW, innerH) {
+  const all = lines.map((line, i) => wordsFor(line, i < lines.length - 1, clock));
+  for (let font = MAX_FONT; font >= MIN_FONT; font -= 0.5) {
+    const wrapped = all.map((words) => wrap(words, innerW / (font * CHAR_W)));
+    if (wrapped.includes(null)) continue;
+    const rows = wrapped.flat();
+    const count = rows.length + 2; // the braces
+    const rowH = Math.round(font * TEXT_H);
+    if (count * rowH + (count + 1) * font * GAP <= innerH) return { font, rows, rowH, count };
+  }
+  // Nothing fits: smallest font, one row per key, and iOS squeezes what is still too long.
+  const rows = all.map((words) => ({ indent: INDENT, words }));
+  return { font: MIN_FONT, rows, rowH: Math.round(MIN_FONT * TEXT_H), count: rows.length + 2 };
+}
+
+function drawRow(widget, row, fit, clock, colors, pen) {
+  const stack = addRow(widget);
+  stack.size = new Size(0, fit.rowH);
+  stack.addSpacer(Math.round(row.indent * fit.font * CHAR_W));
+
+  // Neighbouring pieces of one color become a single text.
+  let text = "";
+  let color = null;
+  const flush = () => {
+    if (text) pen(stack.addText(text), fit.font, colors[color]);
+    text = "";
+  };
+  row.words.forEach((word, i) => {
+    const space = { text: " ", color: word[0].color };
+    for (const piece of i ? [space, ...word] : word) {
+      if (piece.color !== color) flush();
+      color = piece.color;
+      if (piece.clock) addClockValue(stack, clock, fit.font, colors, pen);
+      else text += piece.text;
+    }
+  });
+  flush();
+  stack.addSpacer();
+}
+
 function buildJsonWidget(data, offMin, bg, theme, family) {
   const clock = serverClock(offMin);
-  const lines = linesFor(family, data);
   const size = widgetSize(family);
-  const plan = LAYOUT[family] || LAYOUT.large;
+  const pad = PAD[family] || PAD.large;
   const colors = palette(theme);
   const pen = penFor(colors);
 
-  const innerW = size.w - plan.pad * 2;
-  const innerH = size.h - plan.pad * 2;
-
-  // Font size: what the plan asks for, unless the rows would not fit the height.
-  const rows = lines.length + 2;
-  const byHeight = innerH / (rows * TEXT_H + (rows - 1) * GAP);
-  const base = Math.max(MIN_FONT, half(Math.min(size.w * plan.base, byHeight)));
-  const charW = base * CHAR_W;
-  const indent = charW * 2;
-  const rowH = Math.round(base * TEXT_H);
+  const innerH = size.h - pad * 2;
+  const fit = fitJson(linesFor(family, data), clock, size.w - pad * 2, innerH);
+  // Height the rows leave over is shared out between them, up to a point.
+  const spare = (innerH - fit.count * fit.rowH) / (fit.count + 1);
+  const gap = Math.min(Math.max(spare, fit.font * GAP), fit.font * MAX_GAP);
 
   const w = new ListWidget();
-  w.setPadding(plan.pad, plan.pad, plan.pad, plan.pad);
-  w.spacing = Math.round(base * GAP * 10) / 10;
+  w.setPadding(pad, pad, pad, pad);
+  w.spacing = Math.floor(gap * 10) / 10;
   w.backgroundColor = new Color("#111111");
   if (bg) w.backgroundImage = shadeImage(bg, SHADE);
   w.url = `${SERVER}/`;
   w.refreshAfterDate = nextRefresh(clock);
 
-  w.addSpacer(); // push the JSON block to the bottom, like the web screen
-
   const brace = (text) => {
     const row = addRow(w);
-    row.size = new Size(0, rowH);
-    pen(row.addText(text), base, colors.punct);
+    row.size = new Size(0, fit.rowH);
+    pen(row.addText(text), fit.font, colors.punct);
     row.addSpacer();
   };
 
+  w.addSpacer(); // the two spacers center whatever height is still left
   brace("{");
-
-  lines.forEach((line, i) => {
-    const comma = i < lines.length - 1 ? "," : "";
-    const head = `"${line.key}"`;
-    const value = line.kind === "time" ? `"00:00:00"` : line.kind === "date" ? `"${clock.date}"` : line.value;
-
-    // One line per key, all at the same size. Only a line too long for the widget gets a
-    // smaller font of its own; its row keeps the normal height and indent.
-    const lineUnits = units(head) + 2 + units(value) + comma.length;
-    const fitted = Math.max(MIN_FONT, half(Math.min(base, (innerW - indent) / (lineUnits * CHAR_W))));
-
-    const row = addRow(w);
-    row.size = new Size(0, rowH);
-    row.addSpacer(indent);
-    pen(row.addText(head), fitted, colors.key);
-    pen(row.addText(": "), fitted, colors.punct);
-    if (line.kind === "time") addClockValue(row, clock, fitted, colors, pen);
-    else pen(row.addText(value), fitted, colors.str).minimumScaleFactor = 0.6; // last resort
-    if (comma) pen(row.addText(comma), fitted, colors.punct);
-    row.addSpacer();
-  });
-
+  for (const row of fit.rows) drawRow(w, row, fit, clock, colors, pen);
   brace("}");
+  w.addSpacer();
   return w;
 }
 

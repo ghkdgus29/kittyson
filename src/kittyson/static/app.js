@@ -3,7 +3,8 @@
 
 const POLL_MS = 60_000;
 const API = "/api/widget";
-const MIN_FIT = 0.6;    // a long line shrinks to fit, but never below this share of the base size
+const MIN_FONT_PX = 6;
+const STUB_CH = 6;      // a wrapped value never leaves a last row shorter than this many characters
 
 const $json = document.getElementById("json");
 const $bg = document.getElementById("bg");
@@ -32,22 +33,46 @@ function render(obj) {
     const comma = i < keys.length - 1 ? "," : "";
     const id = k === "time" || k === "date" ? ` id="${k}"` : ""; // the two values tick() rewrites
     const value = escapeHtml(JSON.stringify(obj[k]));
-    return `<div class="line">  <span class="fit"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="s"${id}>${value}</span>${comma}</span></div>`;
+    return `<div class="line"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="s"${id}>${value}</span>${comma}</div>`;
   });
-  $json.innerHTML = `<div class="line">{</div>${lines.join("")}<div class="line">}</div>`;
+  $json.innerHTML = `<div class="brace">{</div>${lines.join("")}<div class="brace">}</div>`;
   fit();
 }
 
-// One line per key: a line wider than the card gets a smaller font instead of wrapping.
-// The indent keeps its size so the keys stay in one column.
-function fit() {
-  const room = $json.clientWidth;
-  for (const span of $json.querySelectorAll(".fit")) {
-    span.style.fontSize = "";
-    const indent = span.offsetLeft;
-    const width = span.getBoundingClientRect().width;
-    if (indent + width > room) span.style.fontSize = `${Math.max(MIN_FIT, (room - indent) / width) * 100}%`;
+// True when some wrapped line ends in a stub like `v1",`. A smaller font suits it better.
+function hasStub(px) {
+  for (const line of $json.querySelectorAll(".line")) {
+    const range = document.createRange();
+    range.selectNodeContents(line);
+    const rects = [...range.getClientRects()].filter((r) => r.width > 0);
+    if (!rects.length) continue;
+    const top = Math.min(...rects.map((r) => r.top));
+    const bottom = Math.max(...rects.map((r) => r.bottom));
+    if (bottom - top < px * 1.6) continue; // a single row
+    const last = rects.filter((r) => r.bottom > bottom - px / 2);
+    const width = Math.max(...last.map((r) => r.right)) - Math.min(...last.map((r) => r.left));
+    if (width < STUB_CH * px * 0.6) return true;
   }
+  return false;
+}
+
+// The JSON fills the card: the biggest font at which every line, wrapped to the card's
+// width (style.css indents the wrapped rows), still fits its height.
+function fit() {
+  const fits = (px) => {
+    $json.style.fontSize = `${px}px`;
+    return $json.scrollHeight <= $json.clientHeight && $json.scrollWidth <= $json.clientWidth;
+  };
+  let lo = MIN_FONT_PX;
+  let hi = $json.clientWidth / 4;
+  while (hi - lo > 0.25) {
+    const mid = (lo + hi) / 2;
+    if (fits(mid)) lo = mid; else hi = mid;
+  }
+  // lo is the biggest size that fits. Step down from it until no line ends in a stub.
+  let px = lo;
+  while (px > MIN_FONT_PX && (!fits(px) || hasStub(px))) px -= 0.5;
+  fits(px);
 }
 
 function tick() {
@@ -122,3 +147,4 @@ scheduleTick();
 setInterval(poll, POLL_MS);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
 window.addEventListener("resize", fit);
+document.fonts.ready.then(fit);

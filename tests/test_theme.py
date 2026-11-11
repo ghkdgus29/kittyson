@@ -36,11 +36,11 @@ def test_mid_tones_stay_readable():
         assert ratio(t["str"], color) >= 3, gray
 
 
-def test_only_the_text_area_counts():
-    # White ceiling, dark floor: the JSON sits on the floor.
+def test_the_whole_photo_counts():
+    # The JSON covers the photo from top to bottom, so a bright upper two thirds decides.
     img = flat((250, 250, 250))
-    img.paste((15, 15, 15), (0, 60, 200, 200))
-    assert theme.analyze(img)["mode"] == "light"
+    img.paste((15, 15, 15), (0, 140, 200, 200))
+    assert theme.analyze(img)["mode"] == "dark"
 
 
 def test_accents_avoid_the_photo_hue():

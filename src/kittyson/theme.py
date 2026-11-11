@@ -1,13 +1,13 @@
 """Text colors that stay readable over today's cat.
 
-The JSON sits on the lower part of the photo, so only that area is measured.
+The JSON covers the whole photo, so the whole photo is measured.
 
-- Light or dark text: whichever keeps more of the area readable. White text is scored
-  against every cell of the area, black text too, and the better one wins.
-- Accent lightness follows the area's median brightness, so keys and strings stay
+- Light or dark text: whichever keeps more of the photo readable. White text is scored
+  against every cell of the photo, black text too, and the better one wins.
+- Accent lightness follows its median brightness, so keys and strings stay
   colorful on a dark photo and turn paler (or darker, for dark text) as it gets harder.
 - Accent hues step away from the photo's dominant hue (no peach strings on a ginger cat).
-- The halo behind the letters gets stronger when part of the area fights the text.
+- The halo behind the letters gets stronger when part of the photo fights the text.
 
 No scrim is drawn over the photo: the cat stays untouched, only the text adapts.
 """
@@ -18,10 +18,9 @@ from pathlib import Path
 
 from PIL import Image
 
-VERSION = 2
+VERSION = 3
 
-TEXT_TOP = 0.32     # the JSON block covers the photo from this fraction of the height down
-GRID = (48, 32)     # the text area is averaged into this many cells
+GRID = (48, 48)     # the photo is averaged into this many cells
 
 KEY_HUES = (200, 165, 275)   # sky, mint, lavender. First one is the default.
 STR_HUES = (32, 52, 335)     # peach, butter, pink
@@ -109,9 +108,8 @@ def _percentile(pairs: list[tuple[float, float]], q: float) -> float:
 
 
 def _measure(img: Image.Image) -> tuple[list[tuple[float, float]], float, float]:
-    """Luminance samples of the text area, plus its dominant hue (degrees) and how strong it is."""
-    w, h = img.size
-    area = img.convert("RGB").crop((0, round(h * TEXT_TOP), w, h)).resize(GRID, Image.Resampling.BOX)
+    """Luminance samples of the photo, plus its dominant hue (degrees) and how strong it is."""
+    area = img.convert("RGB").resize(GRID, Image.Resampling.BOX)
     raw = area.tobytes()
     cols, rows = GRID
 
