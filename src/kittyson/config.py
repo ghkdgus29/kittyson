@@ -1,6 +1,8 @@
-"""Runtime settings. Every value can be overridden with a KITTYSON_* env var or a .env file."""
+"""Runtime settings. Every value can be overridden with a KITTYSON_* env var or a .env file.
 
-from functools import lru_cache
+Import the one instance and read from it: `from kittyson.config import settings`.
+"""
+
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,8 +18,6 @@ class Settings(BaseSettings):
     lon: float = 126.9780
     weather_ttl_seconds: int = 30 * 60
 
-    # Cat providers, in priority order. Known: local, cataas
-    cat_sources: str = "local,cataas"
     cat_size: int = 1024
 
     data_dir: Path = Path("data")
@@ -33,11 +33,5 @@ class Settings(BaseSettings):
     def cats_daily(self) -> Path:
         return self.data_dir / "cats" / "daily"
 
-    @property
-    def sources(self) -> list[str]:
-        return [s.strip() for s in self.cat_sources.split(",") if s.strip()]
 
-
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
+settings = Settings()

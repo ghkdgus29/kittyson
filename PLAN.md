@@ -105,7 +105,8 @@ kittyson/
 ├── pyproject.toml
 ├── src/kittyson/
 │   ├── main.py        # FastAPI 앱: /, /api/widget, /cat/today.jpg
-│   ├── config.py      # 위치(서울 위경도), 타임존, 고양이 폴더 (.env로 덮어쓰기)
+│   ├── config.py      # 위치(서울 위경도), 타임존, 고양이 폴더 (.env로 덮어쓰기). 싱글톤 `settings`
+│   ├── deps.py        # 라우트에 주입하는 것들(FastAPI Depends): 날씨 서비스, 오늘의 고양이. 공급자 목록도 여기
 │   ├── schemas.py     # 위 JSON의 Pydantic 모델
 │   ├── cats/
 │   │   ├── base.py    # Provider 인터페이스, 일일 선택·캐시
@@ -145,8 +146,8 @@ kittyson/
 | `thecatapi` | 나중 | 무료 키 필요. 품질이 더 낫고 jpg·비율 필터 가능. 키 받으면 교체 |
 | `ai` | 나중 | 고정 스타일 프롬프트로 매일 1장 생성. 이미지 모델·비용 결정 필요 |
 
-선택 규칙(`.env` 로 조정):
-- `CAT_SOURCES=local,cataas` 처럼 우선순위 목록. 날짜 시드로 **풀 전체**에서 고르되, `local` 에 사진이 있으면 그쪽 가중치를 높인다. 처음엔 `local` 이 비어 있으니 자동으로 Cataas만 쓰인다.
+선택 규칙:
+- 공급자 목록은 설정이 아니라 소스(`deps.py`의 `get_daily_cat`)에 둔다. 자주 바꿀 값이 아니라서 (2026-11-11 변경). 날짜 시드로 **풀 전체**에서 고르되, `local` 에 사진이 있으면 그쪽 가중치를 높인다. 처음엔 `local` 이 비어 있으니 자동으로 Cataas만 쓰인다.
 - 이름·기분: `local` 은 `cats.json` 값, 그 외는 귀여운 이름 목록·기분 목록에서 날짜 시드로 뽑는다. ("참깨 · sleepy" 같은 조합이 매일 바뀜)
 - **정사각형 크롭**: 어떤 공급자든 Pillow로 가운데 1:1 크롭 후 1024×1024 로 저장. 위젯·워치가 그대로 쓸 수 있는 크기.
 - 공급자 실패 시: 전날 고양이를 그대로 쓴다. 화면이 빈 적은 없어야 한다.
