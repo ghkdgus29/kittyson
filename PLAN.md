@@ -200,8 +200,8 @@ kittyson/
 
 ## 부록. 나중에 할 것 (1차 이후)
 
-- **iPhone 위젯**: Scriptable(JS, Xcode 불필요)로 먼저 → 네이티브 WidgetKit.
+- **iPhone 위젯**: Scriptable(JS, Xcode 불필요)로 먼저 → 네이티브 WidgetKit. Scriptable 스크립트는 `clients/scriptable/kittyson.js` 에 작성 완료(2026-11-10), 실제 기기 확인은 아직. 폰에는 로더(`kittyson-loader.js`)만 넣고, 로더가 GitHub `main` 의 최신 스크립트를 받아 실행한다(2026-11-11).
 - **Apple Watch 위젯**: 네이티브 watchOS WidgetKit만 가능. Xcode 전체 설치 + Apple 개발자 계정 필요. 스마트 스택에 썸네일+온도 수준.
 - **메모·이벤트**: SQLite + `/admin` 페이지 또는 캘린더 연동. JSON에 `notes`, `events` 추가.
-- **배포**: Docker + 홈서버, Tailscale 또는 Cloudflare Tunnel로 HTTPS.
+- **배포**: 홈서버에 Docker로 배포 완료(2026-11-11). 포트 `8787`, 집 와이파이와 Tailscale 안에서 접속. `main` push → GitHub Actions → Docker Hub → 홈서버 자동 배포는 워크플로까지 작성했고, GitHub Secrets를 넣어야 동작한다. 공개 HTTPS는 Cloudflare Tunnel 프로필로 준비만 해 둠. 절차는 README의 배포 절.
 - **위젯용 이미지 크기별 크롭**, 글자색 자동 결정, 캡션 LLM 생성.

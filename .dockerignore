@@ -1,0 +1,11 @@
+.git
+.github
+.venv
+.env
+.env.*
+data
+**/__pycache__
+.pytest_cache
+.playwright-mcp
+tests
+clients

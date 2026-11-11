@@ -1,0 +1,44 @@
+# 독립 스택. 다른 프로젝트와 공유하는 게 없다.
+# 같은 폴더의 .env를 앱 환경변수(env_file)와 DOCKERHUB_USERNAME·TUNNEL_TOKEN 치환에 함께 쓴다.
+#
+# 접속 경로
+# - 기본: 호스트 포트 8787. 집 와이파이와 Tailscale 안에서 http://<홈서버>:8787
+# - 선택: Cloudflare Tunnel로 공개 HTTPS. .env에 아래 두 줄을 넣으면 tunnel 컨테이너가 같이 뜬다.
+#     COMPOSE_PROFILES=tunnel
+#     TUNNEL_TOKEN=...
+#   터널 라우트(Cloudflare 대시보드): <도메인> → http://app:8000
+
+name: kittyson
+
+# 도커 로그 상한 (기본 json-file은 무제한)
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  app:
+    <<: *logging
+    image: ${DOCKERHUB_USERNAME}/kittyson:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "8787:8000"
+    volumes:
+      # 오늘의 고양이 캐시(daily) + 직접 넣는 사진(inbox)
+      - ./data:/code/data
+
+  tunnel:
+    <<: *logging
+    profiles: ["tunnel"]
+    image: cloudflare/cloudflared:2026.10.3
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    depends_on:
+      - app
