@@ -78,14 +78,14 @@ class DailyCat:
         if not (jpg.exists() and meta.exists()):
             return None
         info = json.loads(meta.read_text(encoding="utf-8"))
-        colors = info.get("theme")
-        if not colors or colors.get("v") != theming.VERSION:
+        theme = info.get("theme")
+        if not theme or theme.get("v") != theming.VERSION:
             # A cat saved before themes existed, or by an older version of the analysis.
-            colors = self._theme(jpg)
-            info["theme"] = colors
+            theme = self._theme(jpg)
+            info["theme"] = theme
             self._write_meta(meta, info)
         return CatOfTheDay(
-            day=day, path=jpg, name=info["name"], mood=info["mood"], source=info["source"], theme=colors
+            day=day, path=jpg, name=info["name"], mood=info["mood"], source=info["source"], theme=theme
         )
 
     @staticmethod
