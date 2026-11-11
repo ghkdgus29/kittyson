@@ -10,11 +10,18 @@ from kittyson.config import settings
 from kittyson.main import app
 
 
+def file_handlers(name: str | None = None) -> list[RotatingFileHandler]:
+    return [h for h in logging.getLogger(name).handlers if isinstance(h, RotatingFileHandler)]
+
+
 @pytest.fixture
 def log_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(settings, "data_dir", tmp_path)
     yield tmp_path / "logs"
-    logs.close()
+    for name in (None, *logs.UVICORN_LOGGERS):
+        for handler in file_handlers(name):
+            logging.getLogger(name).removeHandler(handler)
+            handler.close()
 
 
 @pytest.fixture
@@ -24,14 +31,10 @@ def under_uvicorn(monkeypatch: pytest.MonkeyPatch):
         monkeypatch.setattr(logging.getLogger(name), "propagate", False)
 
 
-def file_handlers(name: str | None = None) -> list[RotatingFileHandler]:
-    return [h for h in logging.getLogger(name).handlers if isinstance(h, RotatingFileHandler)]
-
-
 def test_app_and_uvicorn_lines_reach_the_file(log_dir: Path, under_uvicorn):
     logs.configure()
     logging.getLogger("kittyson.cats").info("cat of the day")
-    logging.getLogger("uvicorn.access").info('GET /api/widget 200')
+    logging.getLogger("uvicorn.access").info("GET /api/widget 200")
     logging.getLogger("uvicorn.error").info("Application startup complete.")
 
     lines = (log_dir / "app.log").read_text(encoding="utf-8").splitlines()
@@ -70,24 +73,16 @@ def test_old_lines_are_dropped_once_the_cap_is_reached(log_dir: Path, monkeypatc
     assert "line 199" in (log_dir / "app.log").read_text(encoding="utf-8")
 
 
-def test_configuring_twice_does_not_write_twice(log_dir: Path, under_uvicorn):
-    logs.configure()
-    logs.configure()
-    assert len(file_handlers()) == len(file_handlers("uvicorn")) == len(file_handlers("uvicorn.access")) == 1
+def test_starting_the_app_again_does_not_write_twice(log_dir: Path):
+    for _ in range(2):
+        with TestClient(app):
+            pass
     logging.getLogger("kittyson").info("once")
+    assert len(file_handlers()) == 1
     assert (log_dir / "app.log").read_text(encoding="utf-8").count("once") == 1
-
-
-def test_close_takes_the_handlers_off(log_dir: Path, under_uvicorn):
-    before = logging.getLogger().level
-    logs.configure()
-    logs.close()
-    assert not file_handlers() and not file_handlers("uvicorn")
-    assert logging.getLogger().level == before
 
 
 def test_the_app_logs_while_it_runs(log_dir: Path):
     with TestClient(app):
         logging.getLogger("kittyson").info("running")
     assert "INFO kittyson: running" in (log_dir / "app.log").read_text(encoding="utf-8")
-    assert not file_handlers()

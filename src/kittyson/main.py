@@ -31,7 +31,6 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         await deps.shutdown()
-        logs.close()
 
 
 app = FastAPI(title="kittyson", version=__version__, lifespan=lifespan)
