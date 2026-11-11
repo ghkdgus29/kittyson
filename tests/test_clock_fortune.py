@@ -1,13 +1,16 @@
 import re
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from kittyson import clock
 from kittyson.fortune import FORTUNES, fortune_for
 
 
-def test_iso_seconds_has_offset_and_no_fraction():
-    s = clock.iso_seconds(clock.now("Asia/Seoul"))
-    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00", s)
+def test_time_and_date_strings():
+    dt = datetime(2026, 11, 10, 9, 5, 7, tzinfo=ZoneInfo("Asia/Seoul"))
+    assert clock.time_str(dt) == "09:05:07"
+    assert clock.date_str(dt) == "2026-11-10"
+    assert re.fullmatch(r"\d{2}:\d{2}:\d{2}", clock.time_str(clock.now("Asia/Seoul")))
 
 
 def test_weekday_ko():

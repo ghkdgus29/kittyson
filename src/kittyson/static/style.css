@@ -1,9 +1,12 @@
 :root {
   --bg: #000;
-  --punct: rgba(255, 255, 255, 0.9);
+  /* Defaults until /cat/today.json says what suits today's photo. */
+  --punct: #ffffff;
   --key: #9cdcfe;
   --str: #ffd9a8;
-  --now: #ffffff;
+  --num: #ffffff;
+  --halo: 0 0 0;
+  --halo-a: 0.9;
   color-scheme: dark;
 }
 
@@ -46,33 +49,37 @@ body {
 }
 .bg.ready { opacity: 1; }
 
-/* No box behind the text: the cat stays fully visible. Readability comes from text-shadow. */
+/* No box behind the text: the cat stays fully visible. Readability comes from the text
+   colors picked for the photo and the halo behind the letters. */
 .panel {
   position: absolute;
-  left: 5cqw;
-  right: 5cqw;
-  bottom: 5cqw;
-  padding: 0 1cqw;
+  left: 4.5cqw;
+  right: 4.5cqw;
+  bottom: 4.5cqw;
 }
 
 .json {
   margin: 0;
   font-family: ui-monospace, "SF Mono", Menlo, "JetBrains Mono", Consolas,
     "Apple SD Gothic Neo", "Noto Sans KR", monospace;
-  /* Longest line is `  "now": "2026-11-10T14:01:53+09:00",` = 37 monospace chars.
-     Panel inner width is 81cqw, so anything under ~3.6cqw keeps it on one line. */
-  font-size: 3.4cqw;
-  line-height: 1.6;
+  /* 91cqw of room. At 4.4cqw about 34 monospace characters fit; app.js shrinks longer lines. */
+  font-size: 4.4cqw;
+  line-height: 1.32;
   color: var(--punct);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  white-space: pre;
   text-shadow:
-    0 0 0.4cqw rgba(0, 0, 0, 0.9),
-    0 0.2cqw 1cqw rgba(0, 0, 0, 0.8),
-    0 0 2.5cqw rgba(0, 0, 0, 0.6);
+    0 0 0.1em rgb(var(--halo) / var(--halo-a)),
+    0 0.05em 0.28em rgb(var(--halo) / calc(var(--halo-a) * 0.9)),
+    0 0 0.7em rgb(var(--halo) / calc(var(--halo-a) * 0.7));
   font-variant-numeric: tabular-nums;
 }
 
+.json .line { width: max-content; }
 .json .k { color: var(--key); }
 .json .s { color: var(--str); }
-.json .now { color: var(--now); font-weight: 600; white-space: nowrap; }
+
+/* The clock is the point of the widget: time biggest, date next. */
+.json .time,
+.json .date { color: var(--num); font-weight: 700; }
+.json .time { font-size: 1.9em; line-height: 1.12; }
+.json .date { font-size: 1.4em; line-height: 1.18; }

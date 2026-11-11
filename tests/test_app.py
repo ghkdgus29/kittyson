@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import pytest
@@ -7,7 +8,7 @@ from kittyson import config
 from kittyson.weather import Weather, WeatherService
 from tests.conftest import make_jpeg
 
-EXPECTED_KEYS = ["meow", "now", "weekday", "cat", "weather", "fortune"]
+EXPECTED_KEYS = ["meow", "time", "date", "weekday", "cat", "weather", "fortune"]
 
 
 @pytest.fixture
@@ -39,7 +40,8 @@ def test_widget_shape_and_order(client: TestClient):
     body = r.json()
     assert list(body.keys()) == EXPECTED_KEYS
     assert body["meow"].startswith("🐱 kittyson")
-    assert body["now"].endswith("+09:00")
+    assert re.fullmatch(r"\d{2}:\d{2}:\d{2}", body["time"])
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", body["date"])
     assert body["weather"] == "☁️ 11° 흐림 ↑14 ↓6"
     assert " · " in body["cat"]
     assert r.headers["cache-control"] == "no-store"
@@ -50,6 +52,19 @@ def test_cat_image_is_square_jpeg(client: TestClient):
     assert r.status_code == 200
     assert r.headers["content-type"] == "image/jpeg"
     assert r.content[:2] == b"\xff\xd8"
+
+
+def test_cat_meta_carries_theme(client: TestClient):
+    r = client.get("/cat/today.json")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["date"] == client.get("/api/widget").json()["date"]
+    assert f'{body["name"]} · {body["mood"]}' == client.get("/api/widget").json()["cat"]
+    theme = body["theme"]
+    assert theme["mode"] in ("light", "dark")
+    for key in ("punct", "key", "str", "num", "halo"):
+        assert re.fullmatch(r"#[0-9a-f]{6}", theme[key])
+    assert 0 < theme["halo_alpha"] <= 1
 
 
 def test_index_and_static(client: TestClient):

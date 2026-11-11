@@ -5,7 +5,8 @@ from pydantic import BaseModel
 
 class Widget(BaseModel):
     meow: str
-    now: str
+    time: str
+    date: str
     weekday: str
     cat: str
     weather: str

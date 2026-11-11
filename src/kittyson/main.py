@@ -76,7 +76,8 @@ async def widget(request: Request):
 
     body = Widget(
         meow=MEOW,
-        now=clock.iso_seconds(now),
+        time=clock.time_str(now),
+        date=clock.date_str(now),
         weekday=clock.weekday_ko(today),
         cat=cat.line if cat else "고양이 · missing",
         weather=weather_line,
@@ -92,6 +93,17 @@ async def cat_today(request: Request):
     if cat is None:
         return JSONResponse({"error": "no cat yet"}, status_code=503)
     return FileResponse(cat.path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=300"})
+
+
+@app.get("/cat/today.json")
+async def cat_today_meta(request: Request):
+    """Who today's cat is, and the text colors that read well over the picture."""
+    settings: Settings = request.app.state.settings
+    cat = await request.app.state.cats.get(clock.today(settings.tz))
+    if cat is None:
+        return JSONResponse({"error": "no cat yet"}, status_code=503)
+    body = {"date": cat.day.isoformat(), "name": cat.name, "mood": cat.mood, "source": cat.source, "theme": cat.theme}
+    return JSONResponse(body, headers={"Cache-Control": "public, max-age=300"})
 
 
 def run() -> None:

@@ -5,7 +5,8 @@ kitty + JSON. 매일 바뀌는 고양이 배경 위에 위젯 JSON을 생긴 그
 ```json
 {
   "meow": "🐱 kittyson v1",
-  "now": "2026-11-10T14:01:53+09:00",
+  "time": "14:01:53",
+  "date": "2026-11-10",
   "weekday": "화요일",
   "cat": "참깨 · sleepy",
   "weather": "☁️ 11° 흐림 ↑14 ↓6",
@@ -24,8 +25,9 @@ uv run pytest
 | 경로 | 설명 |
 |---|---|
 | `/` | 화면 (정사각형 카드) |
-| `/api/widget` | 위 JSON. `now` 는 요청 순간의 서버 시각 |
+| `/api/widget` | 위 JSON. `time`, `date` 는 요청 순간의 서버 시각(24시간제) |
 | `/cat/today.jpg` | 오늘의 고양이, 1024×1024 |
+| `/cat/today.json` | 오늘의 고양이 이름·기분과, 그 사진 위에서 잘 읽히는 글자색(`theme`) |
 | `/healthz` | 상태 |
 
 ## 고양이 사진
@@ -36,6 +38,17 @@ uv run pytest
   [{ "file": "sesame-01.jpg", "name": "참깨", "mood": "sleepy" }]
   ```
 - 오늘의 고양이는 `data/cats/daily/YYYY-MM-DD.jpg` 에 확정된다. 바꾸고 싶으면 그 파일과 `.json` 을 지운다.
+
+## 글자색
+
+글자색은 고정이 아니라 그날 사진을 보고 정한다. 서버가 오늘의 고양이를 확정할 때 [theme.py](src/kittyson/theme.py) 가 JSON이 놓이는 아래쪽 영역의 밝기와 색을 재서 `data/cats/daily/YYYY-MM-DD.json` 에 `theme` 으로 저장한다.
+
+- 밝은 글자와 어두운 글자 중 그 영역에서 더 넓게 읽히는 쪽을 고른다.
+- 키와 문자열 색의 밝기는 영역의 중간 밝기에 맞추고, 색상은 사진의 주된 색과 겹치지 않게 고른다.
+- 글자 뒤 후광은 글자와 부딪히는 부분이 많을수록 진해진다.
+- 사진 위에 어두운 막은 깔지 않는다. 고양이는 그대로 두고 글자만 바뀐다.
+
+화면과 위젯은 `/cat/today.json` 의 `theme` 을 받아 그대로 칠한다.
 
 ## 아이폰 위젯
 

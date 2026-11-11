@@ -9,11 +9,12 @@ import asyncio
 import json
 import logging
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Protocol
 
+from kittyson import theme as theming
 from kittyson.images import save_square
 
 log = logging.getLogger(__name__)
@@ -54,6 +55,7 @@ class CatOfTheDay:
     name: str
     mood: str
     source: str
+    theme: dict = field(default_factory=lambda: dict(theming.DEFAULT), compare=False)
 
     @property
     def line(self) -> str:
@@ -76,7 +78,27 @@ class DailyCat:
         if not (jpg.exists() and meta.exists()):
             return None
         info = json.loads(meta.read_text(encoding="utf-8"))
-        return CatOfTheDay(day=day, path=jpg, name=info["name"], mood=info["mood"], source=info["source"])
+        colors = info.get("theme")
+        if not colors or colors.get("v") != theming.VERSION:
+            # A cat saved before themes existed, or by an older version of the analysis.
+            colors = self._theme(jpg)
+            info["theme"] = colors
+            self._write_meta(meta, info)
+        return CatOfTheDay(
+            day=day, path=jpg, name=info["name"], mood=info["mood"], source=info["source"], theme=colors
+        )
+
+    @staticmethod
+    def _theme(jpg: Path) -> dict:
+        try:
+            return theming.for_file(jpg)
+        except Exception as exc:
+            log.warning("theme analysis failed for %s: %s", jpg.name, exc)
+            return dict(theming.DEFAULT)
+
+    @staticmethod
+    def _write_meta(meta: Path, info: dict) -> None:
+        meta.write_text(json.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def latest(self) -> CatOfTheDay | None:
         """Most recent cached cat of any day. Used when every provider fails."""
@@ -126,10 +148,14 @@ class DailyCat:
                 "name": pick.name or name,
                 "mood": pick.mood or mood,
                 "source": provider.key,
+                "theme": self._theme(jpg),
             }
-            meta.write_text(json.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
-            log.info("cat of %s: %s · %s (%s)", day, info["name"], info["mood"], provider.key)
-            return CatOfTheDay(day=day, path=jpg, name=info["name"], mood=info["mood"], source=provider.key)
+            self._write_meta(meta, info)
+            log.info(
+                "cat of %s: %s · %s (%s, %s text)",
+                day, info["name"], info["mood"], provider.key, info["theme"]["mode"],
+            )
+            return self.cached(day)
 
         log.error("all cat providers failed for %s; reusing latest cached cat", day)
         return self.latest()

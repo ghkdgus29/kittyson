@@ -1,60 +1,63 @@
-// kittyson screen: show /api/widget as-is, tick "now" every second, poll every minute.
+// kittyson screen: show /api/widget as-is, tick "time" every second, poll every minute.
+// Text colors come from /cat/today.json, where the server has measured today's photo.
 
 const POLL_MS = 60_000;
 const API = "/api/widget";
+const MIN_FIT = 0.6;    // a long line shrinks to fit, but never below this share of the base size
 
 const $json = document.getElementById("json");
 const $bg = document.getElementById("bg");
 
 let data = null;        // last payload from the server
-let offsetMs = 0;       // server clock - device clock
-let utcOffsetMin = 9 * 60; // from the "+09:00" suffix of "now"
+let offsetMs = 0;       // server wall clock (read as if it were UTC) - device clock
 let shownDate = null;   // YYYY-MM-DD of the background currently shown
+let themedDate = null;  // YYYY-MM-DD the current text colors were measured for
 
 function escapeHtml(s) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
-// Parse "+09:00" / "-05:30" / "Z" into minutes.
-function parseUtcOffset(iso) {
-  const m = iso.match(/([+-])(\d{2}):(\d{2})$/);
-  if (!m) return 0;
-  const sign = m[1] === "-" ? -1 : 1;
-  return sign * (Number(m[2]) * 60 + Number(m[3]));
-}
-
-function pad(n) { return String(n).padStart(2, "0"); }
-
-// Format a UTC epoch ms as ISO 8601 with the server's fixed offset.
-function isoAt(epochMs, offMin) {
-  const d = new Date(epochMs + offMin * 60_000);
-  const sign = offMin < 0 ? "-" : "+";
-  const abs = Math.abs(offMin);
-  return (
-    `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}` +
-    `T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}` +
-    `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`
-  );
-}
-
+// The server sends its local date and time without an offset. Reading them as UTC gives a
+// clock that can be advanced and printed back with toISOString(), whatever zone the device is in.
 function serverNow() { return Date.now() + offsetMs; }
+
+function wallClock() {
+  const iso = new Date(serverNow()).toISOString();
+  return { date: iso.slice(0, 10), time: iso.slice(11, 19) };
+}
 
 function render(obj) {
   const keys = Object.keys(obj);
   const lines = keys.map((k, i) => {
     const comma = i < keys.length - 1 ? "," : "";
-    const cls = k === "now" ? "s now" : "s";
-    const id = k === "now" ? ' id="now"' : "";
+    const big = k === "time" || k === "date";
+    const cls = big ? `s ${k}` : "s";
+    const id = big ? ` id="${k}"` : "";
     const value = escapeHtml(JSON.stringify(obj[k]));
-    return `  <span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="${cls}"${id}>${value}</span>${comma}`;
+    return `<div class="line">  <span class="fit"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="${cls}"${id}>${value}</span>${comma}</span></div>`;
   });
-  $json.innerHTML = `{\n${lines.join("\n")}\n}`;
+  $json.innerHTML = `<div class="line">{</div>${lines.join("")}<div class="line">}</div>`;
+  fit();
+}
+
+// One line per key: a line wider than the card gets a smaller font instead of wrapping.
+// The indent keeps its size so the keys stay in one column.
+function fit() {
+  const room = $json.clientWidth;
+  for (const span of $json.querySelectorAll(".fit")) {
+    span.style.fontSize = "";
+    const indent = span.offsetLeft;
+    const width = span.getBoundingClientRect().width;
+    if (indent + width > room) span.style.fontSize = `${Math.max(MIN_FIT, (room - indent) / width) * 100}%`;
+  }
 }
 
 function tick() {
-  const $now = document.getElementById("now");
-  if (!$now) return;
-  $now.textContent = JSON.stringify(isoAt(serverNow(), utcOffsetMin));
+  const now = wallClock();
+  for (const key of ["time", "date"]) {
+    const el = document.getElementById(key);
+    if (el) el.textContent = JSON.stringify(now[key]);
+  }
 }
 
 function scheduleTick() {
@@ -74,20 +77,41 @@ function showBackground(dateStr) {
   img.src = `/cat/today.jpg?d=${encodeURIComponent(dateStr)}`;
 }
 
+function rgbTriplet(hex) {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(" ");
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement.style;
+  for (const name of ["punct", "key", "str", "num"]) root.setProperty(`--${name}`, theme[name]);
+  root.setProperty("--halo", rgbTriplet(theme.halo));
+  root.setProperty("--halo-a", String(theme.halo_alpha));
+}
+
+async function showTheme(dateStr) {
+  if (dateStr === themedDate) return;
+  try {
+    const res = await fetch(`/cat/today.json?d=${encodeURIComponent(dateStr)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    applyTheme((await res.json()).theme);
+    themedDate = dateStr;
+  } catch (err) {
+    console.warn("kittyson theme failed:", err); // default colors stay, next poll retries
+  }
+}
+
 async function poll() {
   try {
     const res = await fetch(API, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const fresh = await res.json();
-    const serverMs = Date.parse(fresh.now);
-    if (!Number.isNaN(serverMs)) {
-      offsetMs = serverMs - Date.now();
-      utcOffsetMin = parseUtcOffset(fresh.now);
-    }
+    const serverMs = Date.parse(`${fresh.date}T${fresh.time}Z`);
+    if (!Number.isNaN(serverMs)) offsetMs = serverMs - Date.now();
     data = fresh;
     render(data);
     tick();
-    showBackground(fresh.now.slice(0, 10));
+    showBackground(fresh.date);
+    showTheme(fresh.date);
   } catch (err) {
     // Keep the clock running on whatever we had.
     console.warn("kittyson poll failed:", err);
@@ -99,3 +123,4 @@ poll();
 scheduleTick();
 setInterval(poll, POLL_MS);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
+window.addEventListener("resize", fit);

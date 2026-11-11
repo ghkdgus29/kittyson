@@ -94,3 +94,18 @@ async def test_daily_cat_reuses_latest_when_all_fail(tmp_path: Path, jpeg_bytes:
 async def test_daily_cat_none_when_nothing_available(tmp_path: Path):
     daily = DailyCat([FailingProvider()], tmp_path / "daily", size=64)
     assert await daily.get(date(2026, 11, 10)) is None
+
+
+async def test_daily_cat_has_theme_and_backfills_old_meta(tmp_path: Path):
+    daily = DailyCat([StaticProvider(make_jpeg(color=(250, 250, 250)))], tmp_path / "daily", size=64)
+    day = date(2026, 11, 10)
+    cat = await daily.get(day)
+    assert cat.theme["mode"] == "dark"  # a white photo wants dark letters
+
+    # A cat saved before themes existed gets one the next time it is read.
+    meta = cat.path.with_suffix(".json")
+    info = json.loads(meta.read_text(encoding="utf-8"))
+    del info["theme"]
+    meta.write_text(json.dumps(info), encoding="utf-8")
+    assert daily.cached(day).theme == cat.theme
+    assert "theme" in json.loads(meta.read_text(encoding="utf-8"))

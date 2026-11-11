@@ -14,9 +14,14 @@ def today(tz: str) -> date:
     return now(tz).date()
 
 
-def iso_seconds(dt: datetime) -> str:
-    """2026-11-10T14:01:53+09:00"""
-    return dt.isoformat(timespec="seconds")
+def time_str(dt: datetime) -> str:
+    """14:01:53 (24-hour)"""
+    return dt.strftime("%H:%M:%S")
+
+
+def date_str(dt: datetime) -> str:
+    """2026-11-10"""
+    return dt.date().isoformat()
 
 
 def weekday_ko(d: date) -> str:
