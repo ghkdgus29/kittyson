@@ -1,15 +1,16 @@
-"""FastAPI app: the screen, the JSON, and today's cat."""
+"""FastAPI app: the screen, the JSON, and today's cat.
 
-import logging
+Started the same way everywhere: `uvicorn kittyson.main:app` (see README and Dockerfile).
+"""
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from kittyson import __version__, clock, deps
+from kittyson import __version__, clock, deps, logs
 from kittyson.config import settings
 from kittyson.deps import DailyCatDep, DailyFortuneDep, WeatherDep
 from kittyson.fortune import Hints
@@ -21,6 +22,7 @@ MEOW = "🐱 kittyson v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logs.configure()
     settings.cats_inbox.mkdir(parents=True, exist_ok=True)
     settings.cats_daily.mkdir(parents=True, exist_ok=True)
     settings.fortunes.mkdir(parents=True, exist_ok=True)
@@ -29,6 +31,7 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         await deps.shutdown()
+        logs.close()
 
 
 app = FastAPI(title="kittyson", version=__version__, lifespan=lifespan)
@@ -83,8 +86,3 @@ async def cat_today_meta(cats: DailyCatDep):
         return JSONResponse({"error": "no cat yet"}, status_code=503)
     body = {"date": cat.day.isoformat(), "name": cat.name, "mood": cat.mood, "source": cat.source, "theme": cat.theme}
     return JSONResponse(body, headers={"Cache-Control": "public, max-age=300"})
-
-
-def run() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    uvicorn.run("kittyson.main:app", host=settings.host, port=settings.port, reload=False)

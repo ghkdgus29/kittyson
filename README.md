@@ -18,7 +18,7 @@ kitty + JSON. 매일 바뀌는 고양이 배경 위에 위젯 JSON을 생긴 그
 
 ```sh
 uv sync
-uv run kittyson          # http://localhost:8000
+uv run uvicorn kittyson.main:app --reload   # http://localhost:8000
 uv run pytest
 ```
 
@@ -99,6 +99,7 @@ Scriptable 앱용 위젯 스크립트가 `clients/scriptable/` 에 있다. 설�
 ### 운영
 
 - 서버에서 직접 다루기: `cd ~/kittyson && docker compose logs -f app` (`restart`, `down`도 같은 폴더에서).
+- 로그는 두 곳에 남는다. `docker compose logs`(컨테이너를 다시 만들면 사라짐, 10MB × 3개 상한)와 `~/kittyson/data/logs/app.log`(계속 남음, 5MB × 4개 = 최대 20MB에서 오래된 것부터 지워짐).
 - `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`), 직접 넣는 사진(`cats/inbox`), 날짜별 한 마디(`fortunes`)가 여기에 있다.
 
 설정은 `.env.example` 참고. 계획은 `PLAN.md`.

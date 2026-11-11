@@ -107,6 +107,7 @@ kittyson/
 │   ├── main.py        # FastAPI 앱: /, /api/widget, /cat/today.jpg
 │   ├── config.py      # 위치(서울 위경도), 타임존, 고양이 폴더 (.env로 덮어쓰기). 싱글톤 `settings`
 │   ├── deps.py        # 라우트에 주입하는 것들(FastAPI Depends): 날씨 서비스, 오늘의 고양이, 오늘의 한 마디. 공급자 목록도 여기
+│   ├── logs.py        # 로그 설정: stderr + data/logs/app.log (크기 상한)
 │   ├── schemas.py     # 위 JSON의 Pydantic 모델
 │   ├── cats/
 │   │   ├── base.py    # Provider 인터페이스, 일일 선택·캐시
@@ -122,6 +123,7 @@ kittyson/
 │   ├── inbox/         # 직접 올린 사진 + 선택적 cats.json ({ "file", "name", "mood" } 목록)
 │   └── daily/         # 날짜별 확정 고양이 캐시 (1024×1024 jpg)
 ├── data/fortunes/     # 날짜별 확정 한 마디 (git 제외)
+├── data/logs/         # app.log, 크기 상한으로 순환 (git 제외)
 └── tests/
 ```
 
@@ -184,7 +186,7 @@ kittyson/
 
 | 순서 | 내용 | 완료 기준 |
 |---|---|---|
-| 1 | uv 프로젝트, FastAPI 뼈대, `/api/widget` 고정값 응답 | `uv run kittyson` 후 `curl /api/widget` |
+| 1 | uv 프로젝트, FastAPI 뼈대, `/api/widget` 고정값 응답 | `uv run uvicorn kittyson.main:app` 후 `curl /api/widget` |
 | 2 | 시계·한 마디 실제 값 | `time` 이 요청마다 바뀜 |
 | 3 | 날씨 Open-Meteo + 캐시 | 서울 실제 기온 |
 | 4 | 고양이 공급자(`local`, `cataas`) + 일일 선택 + 1:1 크롭 + `/cat/today.jpg` | 오늘/내일 다른 고양이 (날짜 바꿔 테스트), inbox에 사진 넣으면 풀에 포함 |

@@ -25,8 +25,10 @@ class Settings(BaseSettings):
 
     data_dir: Path = Path("data")
 
-    host: str = "0.0.0.0"
-    port: int = 8000
+    # Log file cap: one file is at most log_max_mb, and log_backups older files are kept.
+    # Total on disk: log_max_mb x (log_backups + 1).
+    log_max_mb: int = 5
+    log_backups: int = 3
 
     @property
     def cats_inbox(self) -> Path:
@@ -39,6 +41,10 @@ class Settings(BaseSettings):
     @property
     def fortunes(self) -> Path:
         return self.data_dir / "fortunes"
+
+    @property
+    def logs(self) -> Path:
+        return self.data_dir / "logs"
 
 
 settings = Settings()
