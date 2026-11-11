@@ -15,7 +15,7 @@ def test_dark_photo_gets_light_text():
     t = theme.analyze(flat((20, 20, 24)))
     assert t["mode"] == "light"
     assert t["halo"] == "#000000"
-    for key in ("punct", "key", "str", "num"):
+    for key in ("punct", "key", "str"):
         assert ratio(t[key], (20, 20, 24)) >= 7
 
 
@@ -23,7 +23,7 @@ def test_bright_photo_gets_dark_text():
     t = theme.analyze(flat((245, 245, 240)))
     assert t["mode"] == "dark"
     assert t["halo"] == "#ffffff"
-    for key in ("punct", "key", "str", "num"):
+    for key in ("punct", "key", "str"):
         assert ratio(t[key], (245, 245, 240)) >= 4.5
 
 

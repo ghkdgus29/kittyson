@@ -4,7 +4,6 @@
   --punct: #ffffff;
   --key: #9cdcfe;
   --str: #ffd9a8;
-  --num: #ffffff;
   --halo: 0 0 0;
   --halo-a: 0.9;
   color-scheme: dark;
@@ -77,9 +76,3 @@ body {
 .json .line { width: max-content; }
 .json .k { color: var(--key); }
 .json .s { color: var(--str); }
-
-/* The clock is the point of the widget: time biggest, date next. */
-.json .time,
-.json .date { color: var(--num); font-weight: 700; }
-.json .time { font-size: 1.9em; line-height: 1.12; }
-.json .date { font-size: 1.4em; line-height: 1.18; }

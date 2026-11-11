@@ -62,7 +62,7 @@ def test_cat_meta_carries_theme(client: TestClient):
     assert f'{body["name"]} · {body["mood"]}' == client.get("/api/widget").json()["cat"]
     theme = body["theme"]
     assert theme["mode"] in ("light", "dark")
-    for key in ("punct", "key", "str", "num", "halo"):
+    for key in ("punct", "key", "str", "halo"):
         assert re.fullmatch(r"#[0-9a-f]{6}", theme[key])
     assert 0 < theme["halo_alpha"] <= 1
 

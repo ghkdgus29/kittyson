@@ -30,11 +30,9 @@ function render(obj) {
   const keys = Object.keys(obj);
   const lines = keys.map((k, i) => {
     const comma = i < keys.length - 1 ? "," : "";
-    const big = k === "time" || k === "date";
-    const cls = big ? `s ${k}` : "s";
-    const id = big ? ` id="${k}"` : "";
+    const id = k === "time" || k === "date" ? ` id="${k}"` : ""; // the two values tick() rewrites
     const value = escapeHtml(JSON.stringify(obj[k]));
-    return `<div class="line">  <span class="fit"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="${cls}"${id}>${value}</span>${comma}</span></div>`;
+    return `<div class="line">  <span class="fit"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="s"${id}>${value}</span>${comma}</span></div>`;
   });
   $json.innerHTML = `<div class="line">{</div>${lines.join("")}<div class="line">}</div>`;
   fit();
@@ -83,7 +81,7 @@ function rgbTriplet(hex) {
 
 function applyTheme(theme) {
   const root = document.documentElement.style;
-  for (const name of ["punct", "key", "str", "num"]) root.setProperty(`--${name}`, theme[name]);
+  for (const name of ["punct", "key", "str"]) root.setProperty(`--${name}`, theme[name]);
   root.setProperty("--halo", rgbTriplet(theme.halo));
   root.setProperty("--halo-a", String(theme.halo_alpha));
 }

@@ -39,7 +39,6 @@ DEFAULT = {
     "punct": "#ffffff",
     "key": "#9cdcfe",
     "str": "#ffd9a8",
-    "num": "#ffffff",
     "halo": "#000000",
     "halo_alpha": 0.9,
     "luma": [0.0, 0.0, 0.0],
@@ -160,7 +159,6 @@ def analyze(img: Image.Image) -> dict:
             "punct": "#101010",
             "key": _color(key_hue, accent, 0.9),
             "str": _color(str_hue, accent, 0.9),
-            "num": "#000000",
             "halo": "#ffffff",
             # Dark corners are where black letters get lost.
             "halo_alpha": round(_clamp(0.6 + (0.5 - p10) * 0.8, 0.6, 0.95), 2),
@@ -172,7 +170,6 @@ def analyze(img: Image.Image) -> dict:
             "punct": "#ffffff",
             "key": _color(key_hue, accent, 0.95),
             "str": _color(str_hue, accent, 0.95),
-            "num": "#ffffff",
             "halo": "#000000",
             # Bright patches are where white letters get lost.
             "halo_alpha": round(_clamp(0.6 + (p90 - 0.15) * 0.7, 0.6, 0.95), 2),

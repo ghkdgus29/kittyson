@@ -6,7 +6,7 @@
 //
 // Shows /api/widget from the kittyson server as raw JSON over today's cat.
 // - "time" ticks every second: iOS draws a timer counting up from midnight, which reads
-//   as the current time. "time" and "date" are drawn larger than the other lines.
+//   as the current time. Every line is drawn at the same size, like JSON in an editor.
 // - Text colors come from /cat/today.json. The server measures today's photo and picks
 //   light or dark letters, accent colors and a halo that stay readable over it.
 //
@@ -26,17 +26,15 @@ const DEFAULT_THEME = {
   punct: "#ffffff",
   key: "#9cdcfe",
   str: "#ffd9a8",
-  num: "#ffffff",
   halo: "#000000",
   halo_alpha: 0.9,
 };
 
-// Per widget size: padding, base font size as a share of the widget width, and how many
-// times bigger than the base the time and date values are drawn.
+// Per widget size: padding and font size as a share of the widget width.
 const LAYOUT = {
-  large: { pad: 12, base: 0.048, time: 1.9, date: 1.4 },
-  medium: { pad: 10, base: 0.038, time: 1.5, date: 1.2 },
-  small: { pad: 10, base: 0.066, time: 1.25, date: 1.0 },
+  large: { pad: 12, base: 0.048 },
+  medium: { pad: 10, base: 0.038 },
+  small: { pad: 10, base: 0.066 },
 };
 
 const MIN_FONT = 8;
@@ -169,7 +167,6 @@ function palette(theme) {
     punct: new Color(hex("punct")),
     key: new Color(hex("key")),
     str: new Color(hex("str")),
-    num: new Color(hex("num")),
     halo: new Color(hex("halo"), alpha > 0 && alpha <= 1 ? alpha : DEFAULT_THEME.halo_alpha),
   };
 }
@@ -248,8 +245,9 @@ function units(s) {
   return n;
 }
 
-const TIME = { key: "time", kind: "time", chars: 10 }; // "14:01:53"
-const DATE = { key: "date", kind: "date", chars: 12 }; // "2026-11-10"
+// Values the device fills in itself, so they stay right while the payload ages.
+const TIME = { key: "time", kind: "time" };
+const DATE = { key: "date", kind: "date" };
 
 function linesFor(family, data) {
   const q = (v) => JSON.stringify(String(v ?? ""));
@@ -266,8 +264,8 @@ function half(x) { return Math.floor(x * 2) / 2; }
 
 // Returns a function that styles one piece of text: size, color, halo.
 function penFor(colors) {
-  return (el, size, color, bold) => {
-    el.font = bold ? Font.boldMonospacedSystemFont(size) : Font.regularMonospacedSystemFont(size);
+  return (el, size, color) => {
+    el.font = Font.regularMonospacedSystemFont(size);
     el.textColor = color;
     el.lineLimit = 1;
     el.shadowColor = colors.halo;
@@ -300,15 +298,15 @@ function shadeImage(img, amount) {
 // "HH:MM:SS" in quotes, where the tail is a live iOS timer.
 function addClockValue(row, clock, size, colors, pen) {
   const shape = timerShape(clock.hour, clock.minute);
-  pen(row.addText(`"${shape.prefix}`), size, colors.num, true);
+  pen(row.addText(`"${shape.prefix}`), size, colors.str);
   // A timer text grabs all free width, so pin it inside a fixed-width box.
   const box = row.addStack();
   box.size = new Size(Math.ceil(shape.chars * size * CHAR_W) + 1, 0);
   const timer = box.addDate(clock.midnight);
   timer.applyTimerStyle();
-  pen(timer, size, colors.num, true);
+  pen(timer, size, colors.str);
   timer.minimumScaleFactor = 0.8;
-  pen(row.addText(`"`), size, colors.num, true);
+  pen(row.addText(`"`), size, colors.str);
 }
 
 function buildJsonWidget(data, offMin, bg, theme, family) {
@@ -322,9 +320,9 @@ function buildJsonWidget(data, offMin, bg, theme, family) {
   const innerW = size.w - plan.pad * 2;
   const innerH = size.h - plan.pad * 2;
 
-  // Base font size: what the plan asks for, unless the rows would not fit the height.
-  const rowUnits = 2 + lines.reduce((sum, line) => sum + (plan[line.kind] || 1), 0);
-  const byHeight = innerH / (rowUnits * TEXT_H + (lines.length + 1) * GAP);
+  // Font size: what the plan asks for, unless the rows would not fit the height.
+  const rows = lines.length + 2;
+  const byHeight = innerH / (rows * TEXT_H + (rows - 1) * GAP);
   const base = Math.max(MIN_FONT, half(Math.min(size.w * plan.base, byHeight)));
   const charW = base * CHAR_W;
   const indent = charW * 2;
@@ -352,30 +350,21 @@ function buildJsonWidget(data, offMin, bg, theme, family) {
   lines.forEach((line, i) => {
     const comma = i < lines.length - 1 ? "," : "";
     const head = `"${line.key}"`;
+    const value = line.kind === "time" ? `"00:00:00"` : line.kind === "date" ? `"${clock.date}"` : line.value;
+
+    // One line per key, all at the same size. Only a line too long for the widget gets a
+    // smaller font of its own; its row keeps the normal height and indent.
+    const lineUnits = units(head) + 2 + units(value) + comma.length;
+    const fitted = Math.max(MIN_FONT, half(Math.min(base, (innerW - indent) / (lineUnits * CHAR_W))));
+
     const row = addRow(w);
+    row.size = new Size(0, rowH);
     row.addSpacer(indent);
-
-    if (line.kind) {
-      // Key at the base size, value as big as the plan says or as the width allows.
-      const room = innerW - indent - (units(head) + 2 + comma.length) * charW;
-      const big = Math.max(MIN_FONT, half(Math.min(base * plan[line.kind], room / (line.chars * CHAR_W))));
-      pen(row.addText(head), base, colors.key);
-      pen(row.addText(": "), base, colors.punct);
-      if (line.kind === "time") addClockValue(row, clock, big, colors, pen);
-      else pen(row.addText(`"${clock.date}"`), big, colors.num, true);
-      if (comma) pen(row.addText(comma), base, colors.punct);
-    } else {
-      // One line per key: a line too long for the widget gets a smaller font of its own.
-      // The row keeps the normal height and indent so the lines stay evenly spaced.
-      const lineUnits = units(head) + 2 + units(line.value) + comma.length;
-      const fitted = Math.max(MIN_FONT, half(Math.min(base, (innerW - indent) / (lineUnits * CHAR_W))));
-      row.size = new Size(0, rowH);
-      pen(row.addText(head), fitted, colors.key);
-      pen(row.addText(": "), fitted, colors.punct);
-      pen(row.addText(line.value), fitted, colors.str).minimumScaleFactor = 0.6; // last resort
-      if (comma) pen(row.addText(comma), fitted, colors.punct);
-    }
-
+    pen(row.addText(head), fitted, colors.key);
+    pen(row.addText(": "), fitted, colors.punct);
+    if (line.kind === "time") addClockValue(row, clock, fitted, colors, pen);
+    else pen(row.addText(value), fitted, colors.str).minimumScaleFactor = 0.6; // last resort
+    if (comma) pen(row.addText(comma), fitted, colors.punct);
     row.addSpacer();
   });
 
