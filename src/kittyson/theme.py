@@ -18,7 +18,7 @@ from pathlib import Path
 
 from PIL import Image
 
-VERSION = 1
+VERSION = 2
 
 TEXT_TOP = 0.32     # the JSON block covers the photo from this fraction of the height down
 GRID = (48, 32)     # the text area is averaged into this many cells
@@ -31,6 +31,7 @@ HUE_TOO_CLOSE = 45           # degrees
 CONTRAST_CAP = 7.0       # past this a cell is simply "readable"; more does not make up for bad cells
 LIGHT_BIAS = 1.5         # dark text has to beat light text by this contrast factor
 ACCENT_CONTRAST = 4.5    # keys and strings aim for this ratio against the median brightness
+ACCENT_MAX = 0.72        # light accents stop here: any brighter and they wash out to white
 
 # What clients use before a theme is known. Same colors the screen started with.
 DEFAULT = {
@@ -164,7 +165,7 @@ def analyze(img: Image.Image) -> dict:
             "halo_alpha": round(_clamp(0.6 + (0.5 - p10) * 0.8, 0.6, 0.95), 2),
         }
     else:
-        accent = _clamp((p50 + 0.05) * ACCENT_CONTRAST - 0.05, 0.58, 0.88)
+        accent = _clamp((p50 + 0.05) * ACCENT_CONTRAST - 0.05, 0.58, ACCENT_MAX)
         theme = {
             "mode": "light",
             "punct": "#ffffff",

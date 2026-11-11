@@ -137,12 +137,11 @@ async function loadCat(dateStr) {
 }
 
 // Text colors the server picked for today's photo. null means "use DEFAULT_THEME".
+// Asked for on every run (it is a tiny reply), so a retuned server shows up right away;
+// the saved copy is only for when the server cannot be reached.
 async function loadTheme(dateStr) {
   const name = `theme-${dateStr}.json`;
   const todayPath = fm.joinPath(CACHE_DIR, name);
-  if (fm.fileExists(todayPath)) {
-    try { return JSON.parse(fm.readString(todayPath)); } catch (_) {}
-  }
   try {
     const req = new Request(`${SERVER}/cat/today.json?d=${encodeURIComponent(dateStr)}`);
     req.timeoutInterval = TIMEOUT_S;
@@ -152,7 +151,7 @@ async function loadTheme(dateStr) {
     dropOthers("theme-", name);
     return meta.theme;
   } catch (err) {
-    console.warn(`kittyson: theme not loaded (${err}), using an older one or the default`);
+    console.warn(`kittyson: theme not loaded (${err}), using the saved one or the default`);
     const old = newestCached("theme-");
     if (!old) return null;
     try { return JSON.parse(fm.readString(old)); } catch (_) { return null; }
