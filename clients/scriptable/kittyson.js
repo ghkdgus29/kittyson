@@ -7,8 +7,8 @@
 // Shows /api/widget from the kittyson server as raw JSON over today's cat.
 // - "time" ticks every second: iOS draws a timer counting up from midnight, which reads
 //   as the current time.
-// - The JSON fills the widget: one font size for every line, as big as fits, with long
-//   values wrapped onto the next row.
+// - The JSON fills the widget: one font size for every line, as big as fits, with a long
+//   "quote" wrapped onto the next rows. "weather" always stays on one row.
 // - Text colors come from /cat/today.json. The server measures today's photo and picks
 //   light or dark letters, accent colors and a halo that stay readable over it.
 //
@@ -44,6 +44,7 @@ const MAX_GAP = 0.6;   // most space between rows; beyond it the JSON is centere
 const INDENT = 2;      // indent of a key, in characters
 const HANG = 4;        // indent of the rows a long value wraps onto
 const WIDOW = 6;       // a wrapped value never leaves fewer characters than this on its last row
+const ONE_ROW = ["weather"]; // values that are never wrapped: the font gets smaller instead
 const CLOCK_UNITS = 10.5; // "14:01:53" with its quotes, and the slack of the timer's box
 const TIMEOUT_S = 8;
 
@@ -256,9 +257,9 @@ function linesFor(family, data) {
   const q = (v) => JSON.stringify(String(v ?? ""));
   const text = (key, value) => ({ key, value: q(value === undefined ? data[key] : value) });
   if (family === "small") {
-    return [TIME, DATE, text("cat"), text("weather", String(data.weather || "").split(" ").slice(0, 2).join(" "))];
+    return [TIME, DATE, text("weather", String(data.weather || "").split(" ").slice(0, 2).join(" "))];
   }
-  if (family === "medium") return [TIME, DATE, text("cat"), text("weather"), text("fortune")];
+  if (family === "medium") return [TIME, DATE, text("weather"), text("quote")];
   // large: every key the server sent, in the server's order
   return Object.keys(data).map((k) => (k === "time" ? TIME : k === "date" ? DATE : text(k)));
 }
@@ -351,11 +352,14 @@ function wrap(words, cap) {
 }
 
 // The JSON fills the widget: the biggest font at which every line, wrapped to the
-// widget's width, still fits its height.
+// widget's width, still fits its height, and the ONE_ROW lines are not wrapped at all.
 function fitJson(lines, clock, innerW, innerH) {
   const all = lines.map((line, i) => wordsFor(line, i < lines.length - 1, clock));
   for (let font = MAX_FONT; font >= MIN_FONT; font -= 0.5) {
-    const wrapped = all.map((words) => wrap(words, innerW / (font * CHAR_W)));
+    const wrapped = all.map((words, i) => {
+      const rows = wrap(words, innerW / (font * CHAR_W));
+      return rows && rows.length > 1 && ONE_ROW.includes(lines[i].key) ? null : rows;
+    });
     if (wrapped.includes(null)) continue;
     const rows = wrapped.flat();
     const count = rows.length + 2; // the braces
@@ -444,7 +448,7 @@ function buildAccessoryWidget(data, family) {
     return w;
   }
   const font = Font.regularMonospacedSystemFont(11);
-  for (const key of ["cat", "weather", "fortune"]) {
+  for (const key of ["weather", "quote"]) {
     const t = w.addText(`"${key}": ${JSON.stringify(String(data[key] ?? ""))}`);
     t.font = font;
     t.lineLimit = 1;

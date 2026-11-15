@@ -1,6 +1,6 @@
 """Open-Meteo current weather, cached for a while, with last-good fallback.
 
-Produces a single line such as: ☁️ 11° 흐림 ↑14 ↓6
+Produces a single short line such as: ☁️ 11° ↑14 ↓6 (now, today's high, today's low)
 """
 
 import logging
@@ -13,36 +13,37 @@ log = logging.getLogger(__name__)
 
 API = "https://api.open-meteo.com/v1/forecast"
 
-# WMO weather interpretation codes -> (day emoji, night emoji, Korean description)
-WMO: dict[int, tuple[str, str, str]] = {
-    0: ("☀️", "🌙", "맑음"),
-    1: ("🌤️", "🌙", "대체로 맑음"),
-    2: ("⛅", "☁️", "구름 조금"),
-    3: ("☁️", "☁️", "흐림"),
-    45: ("🌫️", "🌫️", "안개"),
-    48: ("🌫️", "🌫️", "서리 안개"),
-    51: ("🌦️", "🌧️", "약한 이슬비"),
-    53: ("🌦️", "🌧️", "이슬비"),
-    55: ("🌧️", "🌧️", "강한 이슬비"),
-    56: ("🌧️", "🌧️", "언 이슬비"),
-    57: ("🌧️", "🌧️", "언 이슬비"),
-    61: ("🌦️", "🌧️", "약한 비"),
-    63: ("🌧️", "🌧️", "비"),
-    65: ("🌧️", "🌧️", "강한 비"),
-    66: ("🌧️", "🌧️", "언 비"),
-    67: ("🌧️", "🌧️", "언 비"),
-    71: ("🌨️", "🌨️", "약한 눈"),
-    73: ("🌨️", "🌨️", "눈"),
-    75: ("❄️", "❄️", "강한 눈"),
-    77: ("🌨️", "🌨️", "싸락눈"),
-    80: ("🌦️", "🌧️", "소나기"),
-    81: ("🌧️", "🌧️", "소나기"),
-    82: ("🌧️", "🌧️", "강한 소나기"),
-    85: ("🌨️", "🌨️", "소낙눈"),
-    86: ("❄️", "❄️", "강한 소낙눈"),
-    95: ("⛈️", "⛈️", "뇌우"),
-    96: ("⛈️", "⛈️", "우박 뇌우"),
-    99: ("⛈️", "⛈️", "강한 우박 뇌우"),
+# WMO weather interpretation codes -> (day emoji, night emoji).
+# The emoji is all that is said about the sky: with words too, the line would not fit one widget row.
+WMO: dict[int, tuple[str, str]] = {
+    0: ("☀️", "🌙"),
+    1: ("🌤️", "🌙"),
+    2: ("⛅", "☁️"),
+    3: ("☁️", "☁️"),
+    45: ("🌫️", "🌫️"),
+    48: ("🌫️", "🌫️"),
+    51: ("🌦️", "🌧️"),
+    53: ("🌦️", "🌧️"),
+    55: ("🌧️", "🌧️"),
+    56: ("🌧️", "🌧️"),
+    57: ("🌧️", "🌧️"),
+    61: ("🌦️", "🌧️"),
+    63: ("🌧️", "🌧️"),
+    65: ("🌧️", "🌧️"),
+    66: ("🌧️", "🌧️"),
+    67: ("🌧️", "🌧️"),
+    71: ("🌨️", "🌨️"),
+    73: ("🌨️", "🌨️"),
+    75: ("❄️", "❄️"),
+    77: ("🌨️", "🌨️"),
+    80: ("🌦️", "🌧️"),
+    81: ("🌧️", "🌧️"),
+    82: ("🌧️", "🌧️"),
+    85: ("🌨️", "🌨️"),
+    86: ("❄️", "❄️"),
+    95: ("⛈️", "⛈️"),
+    96: ("⛈️", "⛈️"),
+    99: ("⛈️", "⛈️"),
 }
 
 
@@ -55,9 +56,9 @@ class Weather:
     is_day: bool
 
     def line(self) -> str:
-        sky_day, sky_night, desc = WMO.get(self.code, ("🐾", "🐾", "알 수 없음"))
+        sky_day, sky_night = WMO.get(self.code, ("🐾", "🐾"))
         sky = sky_day if self.is_day else sky_night
-        return f"{sky} {round(self.temp)}° {desc} ↑{round(self.high)} ↓{round(self.low)}"
+        return f"{sky} {round(self.temp)}° ↑{round(self.high)} ↓{round(self.low)}"
 
 
 def parse(payload: dict) -> Weather:

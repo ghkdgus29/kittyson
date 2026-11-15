@@ -12,12 +12,10 @@ from fastapi.staticfiles import StaticFiles
 
 from kittyson import __version__, clock, deps, logs
 from kittyson.config import settings
-from kittyson.deps import DailyCatDep, DailyFortuneDep, WeatherDep
-from kittyson.fortune import Hints
+from kittyson.deps import DailyCatDep, DailyQuoteDep, WeatherDep
 from kittyson.schemas import Widget
 
 STATIC = Path(__file__).parent / "static"
-MEOW = "🐱 kittyson v1"
 
 
 @asynccontextmanager
@@ -25,7 +23,7 @@ async def lifespan(app: FastAPI):
     logs.configure()
     settings.cats_inbox.mkdir(parents=True, exist_ok=True)
     settings.cats_daily.mkdir(parents=True, exist_ok=True)
-    settings.fortunes.mkdir(parents=True, exist_ok=True)
+    settings.quotes.mkdir(parents=True, exist_ok=True)
     deps.startup()
     try:
         yield
@@ -48,23 +46,15 @@ async def healthz():
 
 
 @app.get("/api/widget", response_model=Widget)
-async def widget(cats: DailyCatDep, weather: WeatherDep, fortune: DailyFortuneDep):
+async def widget(weather: WeatherDep, quote: DailyQuoteDep):
     now = clock.now(settings.tz)
     today = now.date()
-
-    cat = await cats.get(today)
-    cat_line = cat.line if cat else "고양이 · missing"
-    weather_line = await weather.line()
-    weekday = clock.weekday_ko(today)
-
     body = Widget(
-        meow=MEOW,
         time=clock.time_str(now),
         date=clock.date_str(now),
-        weekday=weekday,
-        cat=cat_line,
-        weather=weather_line,
-        fortune=fortune.line(Hints(day=today, weekday=weekday, weather=weather_line, cat=cat_line)),
+        weekday=clock.weekday_ko(today),
+        weather=await weather.line(),
+        quote=quote.line(today),
     )
     return JSONResponse(body.model_dump(), headers={"Cache-Control": "no-store"})
 
@@ -79,9 +69,9 @@ async def cat_today(cats: DailyCatDep):
 
 @app.get("/cat/today.json")
 async def cat_today_meta(cats: DailyCatDep):
-    """Who today's cat is, and the text colors that read well over the picture."""
+    """Where today's cat came from, and the text colors that read well over the picture."""
     cat = await cats.get(clock.today(settings.tz))
     if cat is None:
         return JSONResponse({"error": "no cat yet"}, status_code=503)
-    body = {"date": cat.day.isoformat(), "name": cat.name, "mood": cat.mood, "source": cat.source, "theme": cat.theme}
+    body = {"date": cat.day.isoformat(), "source": cat.source, "theme": cat.theme}
     return JSONResponse(body, headers={"Cache-Control": "public, max-age=300"})

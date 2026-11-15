@@ -6,22 +6,23 @@ from fastapi.testclient import TestClient
 
 from kittyson.cats import DailyCat, LocalProvider
 from kittyson.config import settings
-from kittyson.deps import get_daily_cat, get_daily_fortune, get_weather_service
-from kittyson.fortune import FORTUNES, DailyFortune
+from kittyson.deps import get_daily_cat, get_daily_quote, get_weather_service
 from kittyson.main import app
+from kittyson.quote import QUOTES, DailyQuote
 from tests.conftest import make_jpeg
 
-EXPECTED_KEYS = ["meow", "time", "date", "weekday", "cat", "weather", "fortune"]
+EXPECTED_KEYS = ["time", "date", "weekday", "weather", "quote"]
+WRITTEN = "수요일의 반은 이미 내 편이다"
 
 
 class FakeWeather:
     async def line(self) -> str:
-        return "☁️ 11° 흐림 ↑14 ↓6"
+        return "☁️ 11° ↑14 ↓6"
 
 
 class FakeWriter:
-    async def write(self, hints, recent) -> str:
-        return "택배 상자는 나한테 온 것"
+    async def write(self, day, recent) -> str:
+        return WRITTEN
 
 
 @pytest.fixture
@@ -31,11 +32,11 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     (inbox / "a.jpg").write_bytes(make_jpeg())
     monkeypatch.setattr(settings, "data_dir", tmp_path)
 
-    # No network: the cat comes from the inbox only, the weather and the fortune are canned.
+    # No network: the cat comes from the inbox only; the weather and the quote are canned.
     cats = DailyCat([LocalProvider(inbox)], tmp_path / "cats" / "daily", size=64)
-    fortunes = DailyFortune(FakeWriter(), tmp_path / "fortunes")
+    quotes = DailyQuote(FakeWriter(), tmp_path / "quotes")
     app.dependency_overrides[get_daily_cat] = lambda: cats
-    app.dependency_overrides[get_daily_fortune] = lambda: fortunes
+    app.dependency_overrides[get_daily_quote] = lambda: quotes
     app.dependency_overrides[get_weather_service] = FakeWeather
 
     with TestClient(app) as c:
@@ -48,19 +49,17 @@ def test_widget_shape_and_order(client: TestClient):
     assert r.status_code == 200
     body = r.json()
     assert list(body.keys()) == EXPECTED_KEYS
-    assert body["meow"].startswith("🐱 kittyson")
     assert re.fullmatch(r"\d{2}:\d{2}:\d{2}", body["time"])
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", body["date"])
-    assert body["weather"] == "☁️ 11° 흐림 ↑14 ↓6"
-    assert " · " in body["cat"]
-    assert body["fortune"] in FORTUNES  # the written line is not there yet on the first request
+    assert body["weather"] == "☁️ 11° ↑14 ↓6"
+    assert body["quote"] in QUOTES  # the written line is not there yet on the first request
     assert r.headers["cache-control"] == "no-store"
 
 
-def test_widget_shows_the_written_fortune_once_it_is_there(client: TestClient):
-    lines = [client.get("/api/widget").json()["fortune"] for _ in range(5)]
-    assert lines[0] in FORTUNES
-    assert lines[-1] == "택배 상자는 나한테 온 것"
+def test_widget_shows_the_written_quote_once_it_is_there(client: TestClient):
+    lines = [client.get("/api/widget").json()["quote"] for _ in range(5)]
+    assert lines[0] in QUOTES
+    assert lines[-1] == WRITTEN
 
 
 def test_cat_image_is_square_jpeg(client: TestClient):
@@ -75,7 +74,7 @@ def test_cat_meta_carries_theme(client: TestClient):
     assert r.status_code == 200
     body = r.json()
     assert body["date"] == client.get("/api/widget").json()["date"]
-    assert f'{body["name"]} · {body["mood"]}' == client.get("/api/widget").json()["cat"]
+    assert body["source"] == "local"
     theme = body["theme"]
     assert theme["mode"] in ("light", "dark")
     for key in ("punct", "key", "str", "halo"):

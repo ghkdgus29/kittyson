@@ -5,8 +5,6 @@ from datetime import date
 
 import httpx
 
-from kittyson.cats.base import CatPick
-
 URL = "https://cataas.com/cat"
 
 
@@ -20,9 +18,9 @@ class CataasProvider:
     def weight(self) -> int:
         return self._weight
 
-    async def pick(self, day: date, rng: random.Random) -> CatPick:
+    async def pick(self, day: date, rng: random.Random) -> bytes:
         r = await self._client.get(URL, params={"type": "square"}, timeout=20, follow_redirects=True)
         r.raise_for_status()
         if not r.headers.get("content-type", "").startswith("image/"):
             raise ValueError(f"cataas returned {r.headers.get('content-type')}")
-        return CatPick(image=r.content)
+        return r.content

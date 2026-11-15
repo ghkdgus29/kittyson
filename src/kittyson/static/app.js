@@ -6,9 +6,20 @@ const API = "/api/widget";
 const MIN_FONT_PX = 6;
 const STUB_CH = 6;      // a wrapped value never leaves a last row shorter than this many characters
 
+const MODES = ["json", "photo", "count"]; // the slider's stops: cat + JSON, cat first, set counter
+const TAP_MS = 400;     // taps closer together than this are one gesture
+
+const $card = document.getElementById("card");
 const $json = document.getElementById("json");
 const $bg = document.getElementById("bg");
+const $mode = document.getElementById("mode");
 
+// The mode and the count are kept on this device. Storage can be blocked: then they just reset.
+function load(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function save(key, value) { try { localStorage.setItem(key, value); } catch { /* not kept */ } }
+
+let mode = MODES.includes(load("kittyson.mode")) ? load("kittyson.mode") : MODES[0];
+let count = Number(load("kittyson.count")) || 0;
 let data = null;        // last payload from the server
 let offsetMs = 0;       // server wall clock (read as if it were UTC) - device clock
 let shownDate = null;   // YYYY-MM-DD of the background currently shown
@@ -33,7 +44,8 @@ function render(obj) {
     const comma = i < keys.length - 1 ? "," : "";
     const id = k === "time" || k === "date" ? ` id="${k}"` : ""; // the two values tick() rewrites
     const value = escapeHtml(JSON.stringify(obj[k]));
-    return `<div class="line"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="s"${id}>${value}</span>${comma}</div>`;
+    const one = k === "weather" ? " one-row" : ""; // never wrapped: fit() makes the font smaller instead
+    return `<div class="line${one}"><span class="k">${escapeHtml(JSON.stringify(k))}</span>: <span class="s"${id}>${value}</span>${comma}</div>`;
   });
   $json.innerHTML = `<div class="brace">{</div>${lines.join("")}<div class="brace">}</div>`;
   fit();
@@ -81,6 +93,38 @@ function tick() {
     const el = document.getElementById(key);
     if (el) el.textContent = JSON.stringify(now[key]);
   }
+}
+
+// Draw what the current mode shows: the server's JSON, plus "count" in count mode.
+function show() {
+  if (!data) return;
+  render(mode === "count" ? { ...data, count } : data);
+  tick();
+}
+
+function setMode(name) {
+  mode = name;
+  $card.dataset.mode = name; // style.css fades the JSON in photo mode
+  $mode.value = MODES.indexOf(name);
+  save("kittyson.mode", name);
+  show();
+}
+
+// Count mode: one tap adds one, a double tap takes one off, a triple tap resets.
+// The number changes on every tap of a gesture, counted from where it stood before the first.
+let taps = 0;
+let before = 0;
+let tapTimer = null;
+
+function tap(event) {
+  if (mode !== "count" || event.target === $mode) return;
+  if (taps === 0) before = count;
+  taps += 1;
+  count = taps === 1 ? before + 1 : taps === 2 ? Math.max(before - 1, 0) : 0;
+  save("kittyson.count", count);
+  show();
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => { taps = 0; }, TAP_MS);
 }
 
 function scheduleTick() {
@@ -131,8 +175,7 @@ async function poll() {
     const serverMs = Date.parse(`${fresh.date}T${fresh.time}Z`);
     if (!Number.isNaN(serverMs)) offsetMs = serverMs - Date.now();
     data = fresh;
-    render(data);
-    tick();
+    show();
     showBackground(fresh.date);
     showTheme(fresh.date);
   } catch (err) {
@@ -141,6 +184,10 @@ async function poll() {
     if (data) tick();
   }
 }
+
+setMode(mode);
+$mode.addEventListener("input", () => setMode(MODES[$mode.value]));
+$card.addEventListener("click", tap);
 
 poll();
 scheduleTick();

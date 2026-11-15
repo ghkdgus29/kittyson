@@ -2,7 +2,7 @@
 
 Each object is built once and shared by every request: the weather service keeps its
 last answer, the daily cat keeps the lock that stops two requests fetching at once, and
-the daily fortune keeps track of the line being written.
+the daily quote keeps track of the line being written.
 A route asks for one by type:
 
     async def widget(cats: DailyCatDep, weather: WeatherDep): ...
@@ -19,7 +19,7 @@ from fastapi import Depends
 from kittyson import __version__
 from kittyson.cats import CataasProvider, DailyCat, LocalProvider, Provider
 from kittyson.config import settings
-from kittyson.fortune import ClaudeWriter, DailyFortune
+from kittyson.quote import ClaudeWriter, DailyQuote
 from kittyson.weather import WeatherService
 
 
@@ -45,25 +45,25 @@ def get_daily_cat() -> DailyCat:
 
 
 @lru_cache
-def get_daily_fortune() -> DailyFortune:
-    return DailyFortune(ClaudeWriter(settings.fortune_model), settings.fortunes)
+def get_daily_quote() -> DailyQuote:
+    return DailyQuote(ClaudeWriter(settings.quote_model), settings.quotes)
 
 
 WeatherDep = Annotated[WeatherService, Depends(get_weather_service)]
 DailyCatDep = Annotated[DailyCat, Depends(get_daily_cat)]
-DailyFortuneDep = Annotated[DailyFortune, Depends(get_daily_fortune)]
+DailyQuoteDep = Annotated[DailyQuote, Depends(get_daily_quote)]
 
 
 def startup() -> None:
     """Build everything before the first request, so two early requests cannot build two."""
     get_weather_service()
     get_daily_cat()
-    get_daily_fortune()
+    get_daily_quote()
 
 
 async def shutdown() -> None:
     """Stop what is running and forget what was built. The next startup builds fresh ones."""
-    await get_daily_fortune().close()
+    await get_daily_quote().close()
     await get_http_client().aclose()
-    for built in (get_daily_fortune, get_daily_cat, get_weather_service, get_http_client):
+    for built in (get_daily_quote, get_daily_cat, get_weather_service, get_http_client):
         built.cache_clear()

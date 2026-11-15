@@ -18,7 +18,7 @@ def no_real_claude(monkeypatch: pytest.MonkeyPatch):
     def refuse(**kwargs):
         raise AssertionError("a test tried to call Claude")
 
-    monkeypatch.setattr("kittyson.fortune.query", refuse)
+    monkeypatch.setattr("kittyson.quote.query", refuse)
 
 
 @pytest.fixture

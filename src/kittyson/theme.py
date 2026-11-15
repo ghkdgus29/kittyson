@@ -18,8 +18,6 @@ from pathlib import Path
 
 from PIL import Image
 
-VERSION = 3
-
 GRID = (48, 48)     # the photo is averaged into this many cells
 
 KEY_HUES = (200, 165, 275)   # sky, mint, lavender. First one is the default.
@@ -34,7 +32,6 @@ ACCENT_MAX = 0.72        # light accents stop here: any brighter and they wash o
 
 # What clients use before a theme is known. Same colors the screen started with.
 DEFAULT = {
-    "v": VERSION,
     "mode": "light",
     "punct": "#ffffff",
     "key": "#9cdcfe",
@@ -174,7 +171,7 @@ def analyze(img: Image.Image) -> dict:
             "halo_alpha": round(_clamp(0.6 + (p90 - 0.15) * 0.7, 0.6, 0.95), 2),
         }
 
-    return {"v": VERSION, **theme, "luma": [round(p10, 3), round(p50, 3), round(p90, 3)]}
+    return {**theme, "luma": [round(p10, 3), round(p50, 3), round(p90, 3)]}
 
 
 def for_file(path: Path) -> dict:

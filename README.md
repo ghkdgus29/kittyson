@@ -4,13 +4,11 @@ kitty + JSON. 매일 바뀌는 고양이 배경 위에 위젯 JSON을 생긴 그
 
 ```json
 {
-  "meow": "🐱 kittyson v1",
   "time": "14:01:53",
   "date": "2026-11-10",
   "weekday": "화요일",
-  "cat": "참깨 · sleepy",
-  "weather": "☁️ 11° 흐림 ↑14 ↓6",
-  "fortune": "낮잠은 생산성이다"
+  "weather": "☁️ 11° ↑14 ↓6",
+  "quote": "오늘의 한 걸음이 내일의 길이 된다"
 }
 ```
 
@@ -27,26 +25,39 @@ uv run pytest
 | `/` | 화면 (정사각형 카드) |
 | `/api/widget` | 위 JSON. `time`, `date` 는 요청 순간의 서버 시각(24시간제) |
 | `/cat/today.jpg` | 오늘의 고양이, 1024×1024 |
-| `/cat/today.json` | 오늘의 고양이 이름·기분과, 그 사진 위에서 잘 읽히는 글자색(`theme`) |
+| `/cat/today.json` | 오늘 사진의 출처와, 그 사진 위에서 잘 읽히는 글자색(`theme`) |
 | `/healthz` | 상태 |
 
 ## 고양이 사진
 
 - `data/cats/inbox/` 에 사진을 넣으면 풀에 포함된다. 비어 있으면 cataas.com 에서 하루 1장 받아온다.
-- 사진마다 이름·기분을 주고 싶으면 `data/cats/inbox/cats.json`:
-  ```json
-  [{ "file": "sesame-01.jpg", "name": "참깨", "mood": "sleepy" }]
-  ```
 - 오늘의 고양이는 `data/cats/daily/YYYY-MM-DD.jpg` 에 확정된다. 바꾸고 싶으면 그 파일과 `.json` 을 지운다.
+- 사진에서 읽어낸 글자색은 옆의 `.json` 에 버전(`v`)과 함께 저장한다. 분석 방식을 바꾸면 [base.py](src/kittyson/cats/base.py)의 `VERSION` 을 올린다. 버전이 다른 `.json` 은 캐시로 치지 않아서, 사진은 그대로 두고 다시 읽어낸다.
 
-## 한 마디
+## 오늘의 명언
 
-`fortune` 은 Claude가 하루에 한 번 쓴다([fortune.py](src/kittyson/fortune.py), Claude Agent SDK). 날짜·요일·날씨·오늘의 고양이와 최근 2주 문장을 넘겨서, 그날에 어울리고 전과 겹치지 않는 한 줄을 받는다.
+`quote` 는 Claude가 하루에 한 번 쓰는 동기부여 한 줄이다([quote.py](src/kittyson/quote.py), Claude Agent SDK). 유명인의 말을 옮기지 않고 새로 쓴다. 날짜·요일과 최근 2주 문장을 넘겨서, 전과 겹치지 않는 한 줄을 받는다.
 
-- 그날 첫 요청 때 백그라운드로 만들어 `data/fortunes/YYYY-MM-DD.json` 에 확정한다. 만들어지기 전 몇 초 동안과, Claude를 못 부르는 날에는 기존 문장 목록에서 날짜로 고른 한 줄이 나온다.
+- 그날 첫 요청 때 백그라운드로 만들어 `data/quotes/YYYY-MM-DD.json` 에 확정한다. 만들어지기 전 몇 초 동안과, Claude를 못 부르는 날에는 정해 둔 문장 목록에서 날짜로 고른 한 줄이 나온다.
 - 인증은 `claude` CLI와 같다. 서버는 `.env` 의 `CLAUDE_CODE_OAUTH_TOKEN`(`claude setup-token` 으로 발급) 또는 `ANTHROPIC_API_KEY`, 로컬은 `claude` 로그인 상태면 된다. 없으면 목록 문장만 쓴다.
-- 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 위젯 두 줄을 넘는 문장(22자 초과)은 버린다.
-- 오늘 문장을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_FORTUNE_MODEL`(기본 `haiku`).
+- 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 28자 이내로 부탁하고, 40자를 넘는 문장은 버린다.
+- 오늘 문장을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_QUOTE_MODEL`(기본 `haiku`).
+
+## 날씨
+
+`weather` 는 `아이콘 현재기온 ↑최고 ↓최저` 다. 위젯에서 항상 한 줄에 들어오도록 짧게 유지한다. 화면과 위젯은 이 줄을 다음 줄로 넘기지 않고, 폭이 모자라면 글자를 줄인다.
+
+## 모드
+
+웹 화면 오른쪽 아래의 슬라이더로 세 가지 모드를 바꾼다([app.js](src/kittyson/static/app.js)). 글자색과는 별개이고, 모드와 숫자는 그 기기의 브라우저에 저장된다.
+
+| 슬라이더 | 모드 | 모양 |
+|---|---|---|
+| 왼쪽 | 고양이 + JSON | 기본 |
+| 가운데 | 사진 강조 | JSON 글자를 흐리게 |
+| 오른쪽 | 숫자 세기 | `"count"` 줄이 붙는다. 한 번 터치 +1, 두 번 터치 −1, 세 번 터치 0으로 |
+
+애플워치 앱도 같은 세 모드를 가진다(아래). 아이폰 위젯에는 모드가 없고 고양이와 JSON만 보여 준다.
 
 ## 글자색
 
@@ -59,9 +70,13 @@ uv run pytest
 
 화면과 위젯은 `/cat/today.json` 의 `theme` 을 받아 그대로 칠한다.
 
-## 아이폰 위젯
+## 아이폰·애플워치
 
-Scriptable 앱용 위젯 스크립트가 `clients/scriptable/` 에 있다. 설치 방법은 [clients/scriptable/README.md](clients/scriptable/README.md).
+네이티브 앱과 위젯이 `clients/apple/` 에 있다(SwiftUI, WidgetKit). 워치 앱은 워치페이스처럼 켜 두고 쓰는 화면이다. 디지털 크라운으로 모드를 바꾸고 터치로 숫자를 센다. 아이폰 홈 화면 위젯은 같은 화면을 보여 주기만 한다. 설치 방법과 워치페이스처럼 쓰는 설정은 [clients/apple/README.md](clients/apple/README.md).
+
+### Scriptable 위젯
+
+Xcode 없이 쓰는 위젯 스크립트가 `clients/scriptable/` 에 있다. 모드는 없다. 설치 방법은 [clients/scriptable/README.md](clients/scriptable/README.md).
 
 폰에는 로더(`kittyson-loader.js`)만 한 번 붙여넣는다. 로더가 실행될 때마다 GitHub에서 최신 `kittyson.js` 를 받아 오므로, 위젯 스크립트 수정은 push만 하면 폰에 반영된다.
 
@@ -100,6 +115,6 @@ Scriptable 앱용 위젯 스크립트가 `clients/scriptable/` 에 있다. 설�
 
 - 서버에서 직접 다루기: `cd ~/kittyson && docker compose logs -f app` (`restart`, `down`도 같은 폴더에서).
 - 로그는 두 곳에 남는다. `docker compose logs`(컨테이너를 다시 만들면 사라짐, 10MB × 3개 상한)와 `~/kittyson/data/logs/app.log`(계속 남음, 5MB × 4개 = 최대 20MB에서 오래된 것부터 지워짐).
-- `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`), 직접 넣는 사진(`cats/inbox`), 날짜별 한 마디(`fortunes`)가 여기에 있다.
+- `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`), 직접 넣는 사진(`cats/inbox`), 날짜별 명언(`quotes`)이 여기에 있다.
 
 설정은 `.env.example` 참고. 계획은 `PLAN.md`.
