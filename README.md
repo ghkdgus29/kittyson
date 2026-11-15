@@ -74,12 +74,6 @@ uv run pytest
 
 네이티브 앱과 위젯이 `clients/apple/` 에 있다(SwiftUI, WidgetKit). 워치 앱은 워치페이스처럼 켜 두고 쓰는 화면이다. 디지털 크라운으로 모드를 바꾸고 터치로 숫자를 센다. 아이폰 홈 화면 위젯은 같은 화면을 보여 주기만 한다. 설치 방법과 워치페이스처럼 쓰는 설정은 [clients/apple/README.md](clients/apple/README.md).
 
-### Scriptable 위젯
-
-Xcode 없이 쓰는 위젯 스크립트가 `clients/scriptable/` 에 있다. 모드는 없다. 설치 방법은 [clients/scriptable/README.md](clients/scriptable/README.md).
-
-폰에는 로더(`kittyson-loader.js`)만 한 번 붙여넣는다. 로더가 실행될 때마다 GitHub에서 최신 `kittyson.js` 를 받아 오므로, 위젯 스크립트 수정은 push만 하면 폰에 반영된다.
-
 ## 배포
 
 다른 프로젝트와 공유하는 게 없는 독립 스택이다([docker-compose.yml](docker-compose.yml)). 컨테이너는 앱 하나이고, 홈서버의 `8787` 포트로 연다. 집 와이파이나 Tailscale 안에서 `http://<홈서버>:8787` 로 접속한다.

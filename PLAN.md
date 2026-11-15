@@ -209,7 +209,7 @@ kittyson/
 ## 부록. 나중에 할 것 (1차 이후)
 
 - **네이티브 아이폰·워치**(2026-11-15): `clients/apple/` 에 아이폰 앱 + Large 위젯, 워치 앱 + 컴플리케이션. 모드 세 가지와 숫자 세기는 워치 앱에만 있다. watchOS는 서드파티 워치페이스를 허용하지 않으므로, 워치 앱을 "시계 화면으로 돌아가기: 1시간 후"로 앞에 두고 워치페이스처럼 쓴다. 워치 위젯은 애플 페이스에서 앱으로 돌아오는 컴플리케이션이다. 아이폰 위젯은 고양이와 JSON만 보여 준다. 시뮬레이터에서 확인했고 실제 기기 설치는 아직.
-- **iPhone 위젯**: Scriptable(JS, Xcode 불필요)로 먼저 → 네이티브 WidgetKit. Scriptable 스크립트는 `clients/scriptable/kittyson.js` 에 작성 완료(2026-11-10), 실제 기기 확인은 아직. 폰에는 로더(`kittyson-loader.js`)만 넣고, 로더가 GitHub `main` 의 최신 스크립트를 받아 실행한다(2026-11-11).
+- **iPhone 위젯**: 처음에는 Scriptable(JS) 스크립트로 만들었고, 네이티브 위젯이 생긴 뒤 지웠다(2026-11-15).
 - **Apple Watch 위젯**: 네이티브 watchOS WidgetKit만 가능. Xcode 전체 설치 + Apple 개발자 계정 필요. 스마트 스택에 썸네일+온도 수준.
 - **메모·이벤트**: SQLite + `/admin` 페이지 또는 캘린더 연동. JSON에 `notes`, `events` 추가.
 - **배포**: 홈서버에 Docker로 배포 완료(2026-11-11). 포트 `8787`, 집 와이파이와 Tailscale 안에서 접속. `main` push → GitHub Actions → Docker Hub → 홈서버 자동 배포는 워크플로까지 작성했고, GitHub Secrets를 넣어야 동작한다. 공개 HTTPS는 Cloudflare Tunnel 프로필로 준비만 해 둠. 절차는 README의 배포 절.
