@@ -1,0 +1,6 @@
+// Where the kittyson server is. Scheme and host are apart because `//` starts a comment here.
+KITTYSON_SCHEME = http
+KITTYSON_HOST = localhost:8000
+
+// Your own server address and signing team go in Local.xcconfig (not in git).
+#include? "Local.xcconfig"

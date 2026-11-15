@@ -1,0 +1,713 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0211F1BEEEE06A10D756648A /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		1C0B4838B5B51B3D0D3FD0F8 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
+		1F586EA765C57FD8DC4CA15A /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		2FB9D7A3D5A0387C20A51571 /* KittysonWatchWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AF01CE18A62D38ACE71EC1AA /* KittysonWatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3B6DA55E39FC761697E7DC8E /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
+		3C1998961F92AF9E3CAAD8DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
+		43DC49D869205EF6986926B3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
+		450162239F004F6558811F3A /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		5B262E71F4D912F3DC42D99C /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		5E1AF2DC955DBAE083DCD625 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
+		6BE123B7B44814A280C8D207 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		6DF8C1824C585569D71A4D9C /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
+		7170DB401BB120C5B6636B58 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
+		73859BEAFA024CD4909DFCB0 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
+		74B7942206C9A084C28A36B0 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		80189E3CE3437E8D13070FDD /* KittysonWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEAE61C5BC3E38FC953924F /* KittysonWatchWidget.swift */; };
+		8B606662D315517E1DDBA257 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
+		8EA218FB40353BEDBE9D1999 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
+		9184FB0E36F4244445178BA2 /* KittysonWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6F1AB47B837D6DA7E17AACFA /* KittysonWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		930BE6A07C273CA1883F1878 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
+		99C43A552E25CA420F17D22B /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
+		9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CA750CC178D2BAA998064F /* KittysonApp.swift */; };
+		A012BD87E0AC2731E9212D06 /* KittysonWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750D8187BACA14786886E88C /* KittysonWidget.swift */; };
+		A7B2AFA296F56AA2738A2426 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		AA672369AF0D9EA96D09FFCC /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
+		AFD778F1A9D12969EE6FAE5A /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		B6BE9B70A5C942EE8D921BD8 /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
+		B8FB6DCDDD9F8311B8598EA7 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
+		BC9AD2059AF14A36EA624D39 /* KittysonWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6310C30FD9A0D0FD2BDB7E3E /* KittysonWatchApp.swift */; };
+		C5432504CE7C5C4E563C81DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
+		D7F71C32029FEDD903510515 /* KittysonWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8C5736D2050AA23D1635282D /* KittysonWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DDA2A5346CA1AE089AC3DF05 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
+		F6A13CC384AC6CE828A13683 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
+		F9B2A6D21DE4A5A858B104A6 /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
+		FEF1DDA34D08766E2C2D3BAE /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2155A9F483A8FA07E2520683 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DCC1951DD6BB2A19E5D6E855 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C615CF55DAA4787F4D193E0E;
+			remoteInfo = KittysonWatch;
+		};
+		ADBA5910B58B8F6854B7D4B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DCC1951DD6BB2A19E5D6E855 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CC349261A58BD0BF0B11EC6;
+			remoteInfo = KittysonWidget;
+		};
+		F008A8B8C5F32E53CBD386D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DCC1951DD6BB2A19E5D6E855 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E69BB9E0BF759958657D4E61;
+			remoteInfo = KittysonWatchWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5BB45CB518C8C815DE5651E6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9184FB0E36F4244445178BA2 /* KittysonWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		621262ECC4A329926F3C7860 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2FB9D7A3D5A0387C20A51571 /* KittysonWatchWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6BCBE3089A074C59498BADAC /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				D7F71C32029FEDD903510515 /* KittysonWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1F636DCAB545CE55D3A76848 /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
+		30CDA15E8F8DF64A751BF14E /* Kittyson.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kittyson.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4216436C53ABB89DA28A0468 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
+		43C15465A81CD7D1A6299CFD /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		47CA750CC178D2BAA998064F /* KittysonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KittysonApp.swift; sourceTree = "<group>"; };
+		51EC7CFC0330092D96E2A367 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		6310C30FD9A0D0FD2BDB7E3E /* KittysonWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KittysonWatchApp.swift; sourceTree = "<group>"; };
+		6F1AB47B837D6DA7E17AACFA /* KittysonWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = KittysonWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		750D8187BACA14786886E88C /* KittysonWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KittysonWidget.swift; sourceTree = "<group>"; };
+		75F0FE798C9B62F280859B97 /* JsonText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonText.swift; sourceTree = "<group>"; };
+		8A3D8A00BE7D713C94E2C915 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		8C5736D2050AA23D1635282D /* KittysonWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KittysonWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		AF01CE18A62D38ACE71EC1AA /* KittysonWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KittysonWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDEAE61C5BC3E38FC953924F /* KittysonWatchWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KittysonWatchWidget.swift; sourceTree = "<group>"; };
+		F5B4C13A35D7E53D11D092DB /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0ECB4AB9781A416BA22D83DC /* WatchApp */ = {
+			isa = PBXGroup;
+			children = (
+				6310C30FD9A0D0FD2BDB7E3E /* KittysonWatchApp.swift */,
+			);
+			path = WatchApp;
+			sourceTree = "<group>";
+		};
+		22CD654FCAFDE9FB173DBF10 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				30CDA15E8F8DF64A751BF14E /* Kittyson.app */,
+				8C5736D2050AA23D1635282D /* KittysonWatch.app */,
+				AF01CE18A62D38ACE71EC1AA /* KittysonWatchWidget.appex */,
+				6F1AB47B837D6DA7E17AACFA /* KittysonWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5B63D80F3DDDB8772B6B1BD5 = {
+			isa = PBXGroup;
+			children = (
+				95F827C7755DDF0586F459C3 /* App */,
+				C41AFE68E8CD1D48CB32EF04 /* Config */,
+				FDF690FF8D1D61902E2D4D25 /* Shared */,
+				0ECB4AB9781A416BA22D83DC /* WatchApp */,
+				884CB3D2FA81656B1A15C2E6 /* WatchWidget */,
+				7F834CD015AD695E71B030DC /* Widget */,
+				22CD654FCAFDE9FB173DBF10 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7F834CD015AD695E71B030DC /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				750D8187BACA14786886E88C /* KittysonWidget.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		884CB3D2FA81656B1A15C2E6 /* WatchWidget */ = {
+			isa = PBXGroup;
+			children = (
+				CDEAE61C5BC3E38FC953924F /* KittysonWatchWidget.swift */,
+			);
+			path = WatchWidget;
+			sourceTree = "<group>";
+		};
+		95F827C7755DDF0586F459C3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				47CA750CC178D2BAA998064F /* KittysonApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C41AFE68E8CD1D48CB32EF04 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				8A3D8A00BE7D713C94E2C915 /* Base.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		FDF690FF8D1D61902E2D4D25 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				43C15465A81CD7D1A6299CFD /* Card.swift */,
+				4216436C53ABB89DA28A0468 /* Counter.swift */,
+				75F0FE798C9B62F280859B97 /* JsonText.swift */,
+				F5B4C13A35D7E53D11D092DB /* Layout.swift */,
+				8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */,
+				51EC7CFC0330092D96E2A367 /* Store.swift */,
+				1F636DCAB545CE55D3A76848 /* Timeline.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2AD0BA509E010F03C1FEF743 /* Kittyson */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C349B4F2B5E6BDFAAE63223C /* Build configuration list for PBXNativeTarget "Kittyson" */;
+			buildPhases = (
+				3BFB4A620F2E2C51C1DFA060 /* Sources */,
+				5BB45CB518C8C815DE5651E6 /* Embed Foundation Extensions */,
+				6BCBE3089A074C59498BADAC /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7193E1C1991338E093111F1B /* PBXTargetDependency */,
+				9FDA18AC848CA06A17F42586 /* PBXTargetDependency */,
+			);
+			name = Kittyson;
+			packageProductDependencies = (
+			);
+			productName = Kittyson;
+			productReference = 30CDA15E8F8DF64A751BF14E /* Kittyson.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9CC349261A58BD0BF0B11EC6 /* KittysonWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 63BFF4F3681653EAB42879A2 /* Build configuration list for PBXNativeTarget "KittysonWidget" */;
+			buildPhases = (
+				81DA35D004EE987CEEFE7AB3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KittysonWidget;
+			packageProductDependencies = (
+			);
+			productName = KittysonWidget;
+			productReference = 6F1AB47B837D6DA7E17AACFA /* KittysonWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C615CF55DAA4787F4D193E0E /* KittysonWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD6D693613A0D1A2C5E1B80A /* Build configuration list for PBXNativeTarget "KittysonWatch" */;
+			buildPhases = (
+				B6919D3A08DD499CCDE2A131 /* Sources */,
+				621262ECC4A329926F3C7860 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6B8A7DAAC17126366E4E7B03 /* PBXTargetDependency */,
+			);
+			name = KittysonWatch;
+			packageProductDependencies = (
+			);
+			productName = KittysonWatch;
+			productReference = 8C5736D2050AA23D1635282D /* KittysonWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E69BB9E0BF759958657D4E61 /* KittysonWatchWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2EB2FD6E1F77954E7286AC40 /* Build configuration list for PBXNativeTarget "KittysonWatchWidget" */;
+			buildPhases = (
+				5B49C9A7ECF20C25B52F51E5 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KittysonWatchWidget;
+			packageProductDependencies = (
+			);
+			productName = KittysonWatchWidget;
+			productReference = AF01CE18A62D38ACE71EC1AA /* KittysonWatchWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DCC1951DD6BB2A19E5D6E855 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					2AD0BA509E010F03C1FEF743 = {
+						ProvisioningStyle = Automatic;
+					};
+					9CC349261A58BD0BF0B11EC6 = {
+						ProvisioningStyle = Automatic;
+					};
+					C615CF55DAA4787F4D193E0E = {
+						ProvisioningStyle = Automatic;
+					};
+					E69BB9E0BF759958657D4E61 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A2B741D94C09F8177CA3D78B /* Build configuration list for PBXProject "Kittyson" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 5B63D80F3DDDB8772B6B1BD5;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 22CD654FCAFDE9FB173DBF10 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2AD0BA509E010F03C1FEF743 /* Kittyson */,
+				9CC349261A58BD0BF0B11EC6 /* KittysonWidget */,
+				C615CF55DAA4787F4D193E0E /* KittysonWatch */,
+				E69BB9E0BF759958657D4E61 /* KittysonWatchWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3BFB4A620F2E2C51C1DFA060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B262E71F4D912F3DC42D99C /* Card.swift in Sources */,
+				1C0B4838B5B51B3D0D3FD0F8 /* Counter.swift in Sources */,
+				FEF1DDA34D08766E2C2D3BAE /* JsonText.swift in Sources */,
+				9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */,
+				A7B2AFA296F56AA2738A2426 /* Layout.swift in Sources */,
+				99C43A552E25CA420F17D22B /* Server.swift in Sources */,
+				73859BEAFA024CD4909DFCB0 /* Store.swift in Sources */,
+				DDA2A5346CA1AE089AC3DF05 /* Timeline.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B49C9A7ECF20C25B52F51E5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				450162239F004F6558811F3A /* Card.swift in Sources */,
+				F6A13CC384AC6CE828A13683 /* Counter.swift in Sources */,
+				AA672369AF0D9EA96D09FFCC /* JsonText.swift in Sources */,
+				80189E3CE3437E8D13070FDD /* KittysonWatchWidget.swift in Sources */,
+				74B7942206C9A084C28A36B0 /* Layout.swift in Sources */,
+				C5432504CE7C5C4E563C81DD /* Server.swift in Sources */,
+				8EA218FB40353BEDBE9D1999 /* Store.swift in Sources */,
+				6DF8C1824C585569D71A4D9C /* Timeline.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81DA35D004EE987CEEFE7AB3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6BE123B7B44814A280C8D207 /* Card.swift in Sources */,
+				3B6DA55E39FC761697E7DC8E /* Counter.swift in Sources */,
+				F9B2A6D21DE4A5A858B104A6 /* JsonText.swift in Sources */,
+				A012BD87E0AC2731E9212D06 /* KittysonWidget.swift in Sources */,
+				0211F1BEEEE06A10D756648A /* Layout.swift in Sources */,
+				7170DB401BB120C5B6636B58 /* Server.swift in Sources */,
+				43DC49D869205EF6986926B3 /* Store.swift in Sources */,
+				B8FB6DCDDD9F8311B8598EA7 /* Timeline.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6919D3A08DD499CCDE2A131 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFD778F1A9D12969EE6FAE5A /* Card.swift in Sources */,
+				8B606662D315517E1DDBA257 /* Counter.swift in Sources */,
+				B6BE9B70A5C942EE8D921BD8 /* JsonText.swift in Sources */,
+				BC9AD2059AF14A36EA624D39 /* KittysonWatchApp.swift in Sources */,
+				1F586EA765C57FD8DC4CA15A /* Layout.swift in Sources */,
+				3C1998961F92AF9E3CAAD8DD /* Server.swift in Sources */,
+				5E1AF2DC955DBAE083DCD625 /* Store.swift in Sources */,
+				930BE6A07C273CA1883F1878 /* Timeline.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6B8A7DAAC17126366E4E7B03 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E69BB9E0BF759958657D4E61 /* KittysonWatchWidget */;
+			targetProxy = F008A8B8C5F32E53CBD386D5 /* PBXContainerItemProxy */;
+		};
+		7193E1C1991338E093111F1B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9CC349261A58BD0BF0B11EC6 /* KittysonWidget */;
+			targetProxy = ADBA5910B58B8F6854B7D4B9 /* PBXContainerItemProxy */;
+		};
+		9FDA18AC848CA06A17F42586 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C615CF55DAA4787F4D193E0E /* KittysonWatch */;
+			targetProxy = 2155A9F483A8FA07E2520683 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0BA5F44CE71DB3B75B9E835E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8A3D8A00BE7D713C94E2C915 /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		2C9D81FA51E8BEF694E6F4FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/WatchWidget-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.watchkitapp.widget;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		38B261CAFFFFD31D7D4A7B34 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8A3D8A00BE7D713C94E2C915 /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
+		74A1A25B6AC47FA0E16408B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/Widget-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		8EC9A0F13D42A5D968C1E3C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A0AAE9342D0E2F55356653C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		A19269AE432E146E7B20AD08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/Widget-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BA41D9BB51C318EA7C6A8BD2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/WatchApp-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		FD8651A438787CABCA5AB433 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/WatchWidget-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.watchkitapp.widget;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		FDD1F5F136B3FD2BBD3EA6C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Kittyson.entitlements;
+				INFOPLIST_FILE = "Config/WatchApp-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ghkdgus29.kittyson.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2EB2FD6E1F77954E7286AC40 /* Build configuration list for PBXNativeTarget "KittysonWatchWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD8651A438787CABCA5AB433 /* Debug */,
+				2C9D81FA51E8BEF694E6F4FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		63BFF4F3681653EAB42879A2 /* Build configuration list for PBXNativeTarget "KittysonWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A19269AE432E146E7B20AD08 /* Debug */,
+				74A1A25B6AC47FA0E16408B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A2B741D94C09F8177CA3D78B /* Build configuration list for PBXProject "Kittyson" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0BA5F44CE71DB3B75B9E835E /* Debug */,
+				38B261CAFFFFD31D7D4A7B34 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BD6D693613A0D1A2C5E1B80A /* Build configuration list for PBXNativeTarget "KittysonWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDD1F5F136B3FD2BBD3EA6C5 /* Debug */,
+				BA41D9BB51C318EA7C6A8BD2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C349B4F2B5E6BDFAAE63223C /* Build configuration list for PBXNativeTarget "Kittyson" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EC9A0F13D42A5D968C1E3C0 /* Debug */,
+				A0AAE9342D0E2F55356653C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DCC1951DD6BB2A19E5D6E855 /* Project object */;
+}
