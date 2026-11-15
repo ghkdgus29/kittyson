@@ -57,7 +57,7 @@ uv run pytest
 | 가운데 | 사진 강조 | JSON 글자를 흐리게 |
 | 오른쪽 | 숫자 세기 | `"count"` 줄이 붙는다. 한 번 터치 +1, 두 번 터치 −1, 세 번 터치 0으로 |
 
-애플워치 앱도 같은 세 모드를 가진다(아래). 아이폰 위젯에는 모드가 없고 고양이와 JSON만 보여 준다.
+애플워치 앱은 여기에 타이머를 더한 네 모드를 가진다(아래). 아이폰 위젯에는 모드가 없고 고양이와 JSON만 보여 준다.
 
 ## 글자색
 
@@ -72,7 +72,7 @@ uv run pytest
 
 ## 아이폰·애플워치
 
-네이티브 앱과 위젯이 `clients/apple/` 에 있다(SwiftUI, WidgetKit). 워치 앱은 워치페이스처럼 켜 두고 쓰는 화면이다. 디지털 크라운으로 모드를 바꾸고 터치로 숫자를 센다. 아이폰 홈 화면 위젯은 같은 화면을 보여 주기만 한다. 설치 방법과 워치페이스처럼 쓰는 설정은 [clients/apple/README.md](clients/apple/README.md).
+네이티브 앱과 위젯이 `clients/apple/` 에 있다(SwiftUI, WidgetKit). 워치 앱은 워치페이스처럼 켜 두고 쓰는 화면이다. 디지털 크라운으로 모드를 바꾸고 터치로 타이머를 돌리거나 숫자를 센다. 아이폰 홈 화면 위젯은 같은 화면을 보여 주기만 한다. 설치 방법과 워치페이스처럼 쓰는 설정은 [clients/apple/README.md](clients/apple/README.md).
 
 ## 배포
 
@@ -111,4 +111,4 @@ uv run pytest
 - 로그는 두 곳에 남는다. `docker compose logs`(컨테이너를 다시 만들면 사라짐, 10MB × 3개 상한)와 `~/kittyson/data/logs/app.log`(계속 남음, 5MB × 4개 = 최대 20MB에서 오래된 것부터 지워짐).
 - `~/kittyson/data`가 볼륨이다. 오늘의 고양이 캐시(`cats/daily`), 직접 넣는 사진(`cats/inbox`), 날짜별 명언(`quotes`)이 여기에 있다.
 
-설정은 `.env.example` 참고. 계획은 `PLAN.md`.
+설정은 `.env.example` 참고. 계획은 `PLAN.md`. 코드를 읽는 순서는 [READING.md](READING.md).
