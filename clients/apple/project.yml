@@ -74,6 +74,7 @@ targets:
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsArbitraryLoads: true}
         WKApplication: true
+        WKBackgroundModes: [alarm]   # the timer's alarm, see WatchApp/Alarm.swift
         WKCompanionAppBundleIdentifier: com.ghkdgus29.kittyson
     entitlements:
       path: Config/Kittyson.entitlements

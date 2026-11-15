@@ -18,8 +18,15 @@ struct Snapshot {
 
     /// The lines to draw: the server's, with today's date from this device, the count when
     /// counting, and only the keys in `only` when the screen is too small for all of them.
-    func lines(now: Date, count: Int? = nil, only: [String]? = nil) -> [Field] {
-        var lines = fields.map { $0.key == "date" ? Field(key: "date", value: "\"\(Clock(now: now).date)\"") : $0 }
+    /// The timer's line takes the place of the weekday: a line more would make every letter smaller.
+    func lines(now: Date, timer: Field? = nil, count: Int? = nil, only: [String]? = nil) -> [Field] {
+        var lines = fields.map { field in
+            switch field.key {
+            case "date": Field(key: "date", value: "\"\(Clock(now: now).date)\"")
+            case "weekday": timer ?? field
+            default: field
+            }
+        }
         if let count { lines.append(Field(key: "count", value: String(count))) }
         if let only { lines = lines.filter { only.contains($0.key) } }
         return lines

@@ -1,11 +1,11 @@
 import Foundation
 
-/// The stops of the watch's crown: cat + JSON, cat first (JSON faint), set counter.
+/// The stops of the watch's crown: cat + JSON, timer, set counter, cat first (JSON faint).
 enum Mode: String, CaseIterable {
-    case json, photo, count
+    case json, timer, count, photo
 }
 
-/// The watch app's mode and count, and the app group an app shares with its widget.
+/// The watch app's mode, count and timer, and the app group an app shares with its widget.
 enum Store {
     static let group = "group.com.ghkdgus29.kittyson"
     static let defaults = UserDefaults(suiteName: group) ?? .standard
@@ -18,5 +18,10 @@ enum Store {
     static var counter: Counter {
         get { defaults.data(forKey: "counter").flatMap { try? JSONDecoder().decode(Counter.self, from: $0) } ?? Counter() }
         set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "counter") }
+    }
+
+    static var timer: Countdown {
+        get { defaults.data(forKey: "timer").flatMap { try? JSONDecoder().decode(Countdown.self, from: $0) } ?? Countdown() }
+        set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "timer") }
     }
 }

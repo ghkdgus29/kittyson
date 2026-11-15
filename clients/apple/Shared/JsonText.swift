@@ -6,15 +6,17 @@ struct JsonText: View {
     var snapshot: Snapshot
     var mode = Mode.json
     var count = 0
+    var timer: Field? = nil     // the watch's timer line
     var now: Date
     var only: [String]? = nil   // the keys to show, when there is no room for all of them
     var braces = true
+    var compact = false         // a screen as narrow as a watch: Rules.compact, and heavier letters
 
     var body: some View {
-        let fields = snapshot.lines(now: now, count: mode == .count ? count : nil, only: only)
+        let fields = snapshot.lines(now: now, timer: timer, count: mode == .count ? count : nil, only: only)
         let halo = Color(hex: snapshot.theme.halo).opacity(mode == .photo ? 0 : snapshot.theme.halo_alpha)
         GeometryReader { box in
-            let fit = Layout.fit(fields, width: box.size.width, height: box.size.height, braces: braces)
+            let fit = Layout.fit(fields, width: box.size.width, height: box.size.height, braces: braces, rules: compact ? .compact : Rules())
             VStack(alignment: .leading, spacing: fit.gap) {
                 if braces { brace("{", fit) }
                 ForEach(Array(fit.rows.enumerated()), id: \.offset) { _, row in
@@ -22,7 +24,7 @@ struct JsonText: View {
                 }
                 if braces { brace("}", fit) }
             }
-            .font(.system(size: fit.font, design: .monospaced))
+            .font(.system(size: fit.font, weight: compact ? .semibold : .regular, design: .monospaced))
             .lineLimit(1)
             .minimumScaleFactor(0.5)
             .shadow(color: halo, radius: fit.font * 0.08)

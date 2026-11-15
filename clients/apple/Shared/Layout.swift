@@ -32,17 +32,29 @@ struct Fit {
     var gap: Double        // space between rows
 }
 
+/// The rules that differ between a roomy box and a screen as narrow as a watch.
+struct Rules {
+    var keys: [String: String] = [:]         // shorter names for the keys
+    var indent = 2                           // indent of a key, in characters
+    var oneRow: Set<String> = ["weather"]    // never wrapped: the font gets smaller instead
+    var under: Set<String> = []              // wrapped rows start under the value's first letter, not at the hang
+    var shrinkStub = true                    // a stub left on a last row makes the font smaller
+    var gap = 0.12                           // least space between rows, in units of font size
+    var maxGap = 0.6                         // most space between rows; beyond it the JSON is centered
+
+    /// The watch: everything gives way to a bigger font, and the rows spread over the whole height.
+    static let compact = Rules(
+        keys: ["time": "t", "date": "d", "weekday": "wd", "weather": "wx", "quote": "q", "count": "n", "timer": "tm"],
+        indent: 0, oneRow: [], under: ["weather"], shrinkStub: false, gap: 0, maxGap: .infinity)
+}
+
 enum Layout {
     static let minFont = 8.0
     static let maxFont = 40.0
     static let charW = 0.62      // monospaced advance, in units of font size (slightly generous)
     static let textH = 1.2       // height of a row of text, in units of font size
-    static let gap = 0.12        // least space between rows, in units of font size
-    static let maxGap = 0.6      // most space between rows; beyond it the JSON is centered
-    static let indent = 2        // indent of a key, in characters
-    static let hang = 4          // indent of the rows a long value wraps onto
-    static let widow = 6.0       // a wrapped value never leaves fewer characters than this on its last row
-    static let oneRow: Set<String> = ["weather"] // never wrapped: the font gets smaller instead
+    static let hang = 2          // further indent of the rows a long value wraps onto
+    static let widow = 6.0       // fewer characters than this on the last row of a wrapped value is a stub
     static let clockUnits = 10.0 // "14:01:53" with its quotes
 
     /// Width of a string in monospaced-character units. Hangul, CJK and emoji are wider.
@@ -59,12 +71,16 @@ enum Layout {
     }
 
     /// A JSON line as words: the key with the start of its value, then the rest of the value
-    /// cut at its spaces.
-    static func words(_ field: Field, comma: Bool) -> [[Piece]] {
-        let head = [Piece(text: "\"\(field.key)\"", ink: .key), Piece(text: ": ", ink: .punct)]
+    /// cut at its spaces. A value that comes in lines of its own (the watch's timer) keeps them:
+    /// each further line is one word, after an empty word that stands for the line break.
+    static func words(_ field: Field, comma: Bool, rules: Rules = Rules()) -> [[Piece]] {
+        let key = rules.keys[field.key] ?? field.key
+        let head = [Piece(text: "\"\(key)\"", ink: .key), Piece(text: ": ", ink: .punct)]
         let tail = comma ? [Piece(text: ",", ink: .punct)] : []
         if field.key == "time" { return [head + [Piece(text: "", ink: .str, clock: true)] + tail] }
-        var words = field.value.components(separatedBy: " ").map { [Piece(text: $0, ink: .str)] }
+        let lines = field.value.components(separatedBy: "\n")
+        var words = lines[0].components(separatedBy: " ").map { [Piece(text: $0, ink: .str)] }
+        for line in lines.dropFirst() { words += [[], [Piece(text: line, ink: .str)]] }
         words[0].insert(contentsOf: head, at: 0)
         words[words.count - 1].append(contentsOf: tail)
         return words
@@ -75,28 +91,41 @@ enum Layout {
     }
 
     /// Break one JSON line into rows no wider than `cap` characters. nil when a single word
-    /// is too wide or the last row would be a stub (a smaller font suits such a line better).
-    static func wrap(_ words: [[Piece]], cap: Double) -> [Row]? {
+    /// is too wide, or when the last row is a stub and a smaller font is the cure for that.
+    /// `under`: the rows it wraps onto start under the value's first letter.
+    static func wrap(_ words: [[Piece]], cap: Double, rules: Rules = Rules(), under: Bool = false) -> [Row]? {
+        // The key, the colon and the value's opening quote come before that letter.
+        let hang = Double(rules.indent) + (under ? units(Array(words[0].prefix(2))) + 1 : Double(Layout.hang))
         var rows: [Row] = []
         var used = 0.0
+        var broken = false   // the value breaks the line here itself
         for word in words {
+            if word.isEmpty { broken = true; continue }
             let n = units(word)
-            if !rows.isEmpty, used + 1 + n <= cap {
+            if !rows.isEmpty, !broken, used + 1 + n <= cap {
                 rows[rows.count - 1].words.append(word)
                 used += 1 + n
                 continue
             }
-            let indent = rows.isEmpty ? Layout.indent : hang
-            if Double(indent) + n > cap { return nil }
-            rows.append(Row(indent: indent, words: [word]))
-            used = Double(indent) + n
+            // A line of the value's own brings its own indent.
+            let start = rows.isEmpty || broken ? Double(rules.indent) : hang
+            if start + n > cap { return nil }
+            rows.append(Row(indent: Int(start), words: [word]))
+            used = start + n
+            broken = false
         }
-        if rows.count > 1, used - Double(hang) < widow { return nil }
+        guard rows.count > 1, used - hang < widow, !words.contains([]) else { return rows }
+        if rules.shrinkStub { return nil }
+        // Otherwise the word before the stub comes down to keep it company.
+        let above = rows.count - 2
+        if rows[above].words.count > 1, used + 1 + units(rows[above].words.last!) <= cap {
+            rows[above + 1].words.insert(rows[above].words.removeLast(), at: 0)
+        }
         return rows
     }
 
-    static func fit(_ fields: [Field], width: Double, height: Double, braces: Bool = true) -> Fit {
-        let all = fields.enumerated().map { words($1, comma: $0 < fields.count - 1) }
+    static func fit(_ fields: [Field], width: Double, height: Double, braces: Bool = true, rules: Rules = Rules()) -> Fit {
+        let all = fields.enumerated().map { words($1, comma: $0 < fields.count - 1, rules: rules) }
         let extra = braces ? 2 : 0
 
         func result(_ font: Double, _ rows: [Row]) -> Fit {
@@ -104,22 +133,22 @@ enum Layout {
             let rowHeight = (font * textH).rounded()
             // Height the rows leave over is shared out between them, up to a point.
             let spare = (height - count * rowHeight) / (count + 1)
-            return Fit(font: font, rows: rows, rowHeight: rowHeight, gap: min(max(spare, font * gap), font * maxGap))
+            return Fit(font: font, rows: rows, rowHeight: rowHeight, gap: min(max(spare, font * rules.gap), font * rules.maxGap))
         }
 
         for font in stride(from: maxFont, through: minFont, by: -0.5) {
             var rows: [Row] = []
             var ok = true
             for (field, words) in zip(fields, all) {
-                guard let wrapped = wrap(words, cap: width / (font * charW)),
-                      wrapped.count == 1 || !oneRow.contains(field.key) else { ok = false; break }
+                guard let wrapped = wrap(words, cap: width / (font * charW), rules: rules, under: rules.under.contains(field.key)),
+                      wrapped.count == 1 || !rules.oneRow.contains(field.key) else { ok = false; break }
                 rows += wrapped
             }
             let count = Double(rows.count + extra)
-            if ok, count * (font * textH).rounded() + (count + 1) * font * gap <= height { return result(font, rows) }
+            if ok, count * (font * textH).rounded() + (count + 1) * font * rules.gap <= height { return result(font, rows) }
         }
         // Nothing fits: smallest font, one row per key, and the view squeezes what is still too long.
-        return result(minFont, all.map { Row(indent: indent, words: $0) })
+        return result(minFont, all.map { Row(indent: rules.indent, words: $0) })
     }
 }
 

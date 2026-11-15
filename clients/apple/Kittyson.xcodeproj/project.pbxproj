@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		0211F1BEEEE06A10D756648A /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		0885FCDD4B8778CC8C8F174E /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F51E087CCEE7A48E26E7 /* Countdown.swift */; };
 		1C0B4838B5B51B3D0D3FD0F8 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
 		1F586EA765C57FD8DC4CA15A /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		26AF8AC033F9545A5CBE30C4 /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F51E087CCEE7A48E26E7 /* Countdown.swift */; };
 		2FB9D7A3D5A0387C20A51571 /* KittysonWatchWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AF01CE18A62D38ACE71EC1AA /* KittysonWatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3B6DA55E39FC761697E7DC8E /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
+		3B99B5619F717BEE009E2C2A /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE4EC49839F66F13F25B575 /* Alarm.swift */; };
 		3C1998961F92AF9E3CAAD8DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
 		43DC49D869205EF6986926B3 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
 		450162239F004F6558811F3A /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
@@ -30,9 +33,11 @@
 		99C43A552E25CA420F17D22B /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
 		9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CA750CC178D2BAA998064F /* KittysonApp.swift */; };
 		A012BD87E0AC2731E9212D06 /* KittysonWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750D8187BACA14786886E88C /* KittysonWidget.swift */; };
+		A0D682F5FF476DE49BEEE3E1 /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F51E087CCEE7A48E26E7 /* Countdown.swift */; };
 		A7B2AFA296F56AA2738A2426 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
 		AA672369AF0D9EA96D09FFCC /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
 		AFD778F1A9D12969EE6FAE5A /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		B24C59A55CDCD94832BA8B26 /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F51E087CCEE7A48E26E7 /* Countdown.swift */; };
 		B6BE9B70A5C942EE8D921BD8 /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
 		B8FB6DCDDD9F8311B8598EA7 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
 		BC9AD2059AF14A36EA624D39 /* KittysonWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6310C30FD9A0D0FD2BDB7E3E /* KittysonWatchApp.swift */; };
@@ -105,7 +110,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A78F51E087CCEE7A48E26E7 /* Countdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countdown.swift; sourceTree = "<group>"; };
 		1F636DCAB545CE55D3A76848 /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
+		1FE4EC49839F66F13F25B575 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
 		30CDA15E8F8DF64A751BF14E /* Kittyson.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kittyson.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4216436C53ABB89DA28A0468 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		43C15465A81CD7D1A6299CFD /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -127,6 +134,7 @@
 		0ECB4AB9781A416BA22D83DC /* WatchApp */ = {
 			isa = PBXGroup;
 			children = (
+				1FE4EC49839F66F13F25B575 /* Alarm.swift */,
 				6310C30FD9A0D0FD2BDB7E3E /* KittysonWatchApp.swift */,
 			);
 			path = WatchApp;
@@ -192,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				43C15465A81CD7D1A6299CFD /* Card.swift */,
+				1A78F51E087CCEE7A48E26E7 /* Countdown.swift */,
 				4216436C53ABB89DA28A0468 /* Counter.swift */,
 				75F0FE798C9B62F280859B97 /* JsonText.swift */,
 				F5B4C13A35D7E53D11D092DB /* Layout.swift */,
@@ -330,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B262E71F4D912F3DC42D99C /* Card.swift in Sources */,
+				26AF8AC033F9545A5CBE30C4 /* Countdown.swift in Sources */,
 				1C0B4838B5B51B3D0D3FD0F8 /* Counter.swift in Sources */,
 				FEF1DDA34D08766E2C2D3BAE /* JsonText.swift in Sources */,
 				9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */,
@@ -345,6 +355,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				450162239F004F6558811F3A /* Card.swift in Sources */,
+				B24C59A55CDCD94832BA8B26 /* Countdown.swift in Sources */,
 				F6A13CC384AC6CE828A13683 /* Counter.swift in Sources */,
 				AA672369AF0D9EA96D09FFCC /* JsonText.swift in Sources */,
 				80189E3CE3437E8D13070FDD /* KittysonWatchWidget.swift in Sources */,
@@ -360,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6BE123B7B44814A280C8D207 /* Card.swift in Sources */,
+				0885FCDD4B8778CC8C8F174E /* Countdown.swift in Sources */,
 				3B6DA55E39FC761697E7DC8E /* Counter.swift in Sources */,
 				F9B2A6D21DE4A5A858B104A6 /* JsonText.swift in Sources */,
 				A012BD87E0AC2731E9212D06 /* KittysonWidget.swift in Sources */,
@@ -374,7 +386,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B99B5619F717BEE009E2C2A /* Alarm.swift in Sources */,
 				AFD778F1A9D12969EE6FAE5A /* Card.swift in Sources */,
+				A0D682F5FF476DE49BEEE3E1 /* Countdown.swift in Sources */,
 				8B606662D315517E1DDBA257 /* Counter.swift in Sources */,
 				B6BE9B70A5C942EE8D921BD8 /* JsonText.swift in Sources */,
 				BC9AD2059AF14A36EA624D39 /* KittysonWatchApp.swift in Sources */,

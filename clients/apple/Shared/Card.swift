@@ -20,14 +20,18 @@ struct Card: View {
     var snapshot: Snapshot
     var mode = Mode.json
     var count = 0
+    var timer: Field? = nil
     var now: Date
     var only: [String]? = nil
-    var inset = 16.0
+    var inset = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+    var compact = false         // a screen as narrow as a watch
 
     var body: some View {
-        JsonText(snapshot: snapshot, mode: mode, count: count, now: now, only: only)
+        // On a watch the letters are small, so the photo steps back behind them.
+        let veil = Color(hex: snapshot.theme.halo).opacity(compact && mode != .photo ? 0.35 : 0)
+        JsonText(snapshot: snapshot, mode: mode, count: count, timer: timer, now: now, only: only, compact: compact)
             .padding(inset)
-            .background { CatPhoto(url: snapshot.photo).ignoresSafeArea() }
+            .background { CatPhoto(url: snapshot.photo).overlay(veil).ignoresSafeArea() }
             .contentShape(Rectangle())
             .animation(.easeInOut(duration: 0.2), value: mode)
     }
