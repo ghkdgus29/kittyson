@@ -8,7 +8,7 @@ kitty + JSON. 매일 바뀌는 고양이 배경 위에 위젯 JSON을 생긴 그
   "date": "2026-11-10",
   "weekday": "화요일",
   "weather": "☁️ 11° ↑14 ↓6",
-  "quote": "오늘의 한 걸음이 내일의 길이 된다"
+  "quote": "천 리 길도 한 걸음부터 시작된다"
 }
 ```
 
@@ -36,12 +36,14 @@ uv run pytest
 
 ## 오늘의 명언
 
-`quote` 는 Claude가 하루에 한 번 쓰는 동기부여 한 줄이다([quote.py](src/kittyson/quote.py), Claude Agent SDK). 유명인의 말을 옮기지 않고 새로 쓴다. 날짜·요일과 최근 2주 문장을 넘겨서, 전과 겹치지 않는 한 줄을 받는다.
+`quote` 는 실제 인물이 남긴 동기부여 명언 한 줄이다. Claude가 하루에 한 번 고른다([quote.py](src/kittyson/quote.py), Claude Agent SDK). 날짜·요일, 그날 찾아볼 분야(철학자, 운동선수, 한국 인물 등)와 최근 두 달의 명언을 넘겨서, 전과 겹치지 않는 한 줄을 받는다.
 
-- 그날 첫 요청 때 백그라운드로 만들어 `data/quotes/YYYY-MM-DD.json` 에 확정한다. 만들어지기 전 몇 초 동안과, Claude를 못 부르는 날에는 정해 둔 문장 목록에서 날짜로 고른 한 줄이 나온다.
-- 인증은 `claude` CLI와 같다. 서버는 `.env` 의 `CLAUDE_CODE_OAUTH_TOKEN`(`claude setup-token` 으로 발급) 또는 `ANTHROPIC_API_KEY`, 로컬은 `claude` 로그인 상태면 된다. 없으면 목록 문장만 쓴다.
-- 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 28자 이내로 부탁하고, 40자를 넘는 문장은 버린다.
-- 오늘 문장을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_QUOTE_MODEL`(기본 `haiku`).
+- 화면에는 문장만 나온다. 누가 한 말인지는 `data/quotes/YYYY-MM-DD.json` 의 `by` 에 남는다.
+- Claude가 고른 명언은 따로 검증하지 않는다. 출처가 분명한 말만 고르라고 시키지만, 틀릴 수 있다. 의심스러우면 `by` 를 보고 확인한다.
+- 그날 첫 요청 때 백그라운드로 골라 날짜 파일에 확정한다. 고르기 전 몇 초 동안과, Claude를 못 부르는 날에는 출처를 확인해 둔 명언 목록(`QUOTES`, 줄마다 말한 사람과 출처가 적혀 있다)에서 날짜로 고른 한 줄이 나온다.
+- 인증은 `claude` CLI와 같다. 서버는 `.env` 의 `CLAUDE_CODE_OAUTH_TOKEN`(`claude setup-token` 으로 발급) 또는 `ANTHROPIC_API_KEY`, 로컬은 `claude` 로그인 상태면 된다. 없으면 목록의 명언만 쓴다.
+- 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 28자 이내인 명언을 부탁하고, 40자를 넘는 문장은 버린다.
+- 오늘 명언을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_QUOTE_MODEL`(기본 `opus`. 실제로 한 말인지 가려내는 일이라 작은 모델보다 낫다).
 
 ## 날씨
 

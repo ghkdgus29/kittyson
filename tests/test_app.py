@@ -21,8 +21,8 @@ class FakeWeather:
 
 
 class FakeWriter:
-    async def write(self, day, recent) -> str:
-        return WRITTEN
+    async def write(self, day, recent) -> tuple[str, str]:
+        return WRITTEN, "아무개"
 
 
 @pytest.fixture

@@ -38,7 +38,7 @@ Claude (명언) ──────┘                        ├─ /cat/today.j
 | 6 | [cats/base.py](src/kittyson/cats/base.py) | 149 | `get()` → `cached()` → `_make()` → `_fetch()`. 같은 날에는 같은 고양이가 나오는 이유(날짜로 정한 난수와 `daily/` 파일), 모두 실패하면 `latest()`, `VERSION` 의 역할 |
 | 7 | [cats/local.py](src/kittyson/cats/local.py), [cats/cataas.py](src/kittyson/cats/cataas.py), [images.py](src/kittyson/images.py) | 29, 26, 20 | 사진을 주는 두 곳과 정사각형으로 자르기. `weight()` 가 0이면 그날 후보에서 빠진다 |
 | 8 | [theme.py](src/kittyson/theme.py) | 179 | 맨 아래 `analyze()` 부터 읽고 `_measure()`, `_readability()`, `_pick_hue()`, `_color()` 로 올라간다. 맨 위 주석의 네 가지 규칙이 코드 어디에 있는지 짝지어 본다 |
-| 9 | [quote.py](src/kittyson/quote.py) | 251 | `DailyQuote.line()` → `_start()` → `_write()` → `ClaudeWriter.write()` → `clean()`. `line()` 이 기다리지 않고 바로 답하는 것, 다시 시도하는 규칙(`_start`), 위쪽 상수들 |
+| 9 | [quote.py](src/kittyson/quote.py) | 255 | `DailyQuote.line()` → `_start()` → `_write()` → `ClaudeWriter.write()` → `clean()`. `line()` 이 기다리지 않고 바로 답하는 것, 다시 시도하는 규칙(`_start`), 위쪽 상수들 |
 | 10 | [logs.py](src/kittyson/logs.py) | 38 | 로그가 두 곳에 남는 방법 |
 
 가장 긴 두 파일(`theme.py`, `quote.py`)은 뒤로 미뤘다. 앞의 일곱 단계만 읽어도 요청 하나가 처음부터 끝까지 어떻게 처리되는지 알 수 있다.

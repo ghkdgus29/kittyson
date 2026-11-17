@@ -20,8 +20,8 @@ class Settings(BaseSettings):
 
     cat_size: int = 1024
 
-    # The model that writes the day's quote. A claude CLI alias or a full model id.
-    quote_model: str = "haiku"
+    # The model that picks the day's quote. A claude CLI alias or a full model id.
+    quote_model: str = "opus"
 
     data_dir: Path = Path("data")
 

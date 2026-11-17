@@ -1,10 +1,10 @@
-"""One motivating line a day.
+"""One motivating line a day, said by a real person.
 
-Claude writes the day's quote once (ClaudeWriter), told the date and the quotes of the last
-two weeks so it does not repeat itself. DailyQuote keeps it in data/quotes/YYYY-MM-DD.json,
-so the whole day shows the same quote.
+Claude picks the day's quote once (ClaudeWriter), told the date and the quotes of the last
+two months so it does not repeat itself. DailyQuote keeps it in data/quotes/YYYY-MM-DD.json
+with who said it, so the whole day shows the same quote. Only the line is shown.
 
-Writing takes a few seconds, so it happens in the background. Until the quote is there, and
+Picking takes a few seconds, so it happens in the background. Until the quote is there, and
 on days Claude cannot be reached (no token, no network), the day's pick from QUOTES shows.
 """
 
@@ -23,76 +23,77 @@ from kittyson import clock
 
 log = logging.getLogger(__name__)
 
+# Each with who said it and where, so it can be looked up.
 QUOTES = [
-    "오늘의 한 걸음이 내일의 길이 된다",
-    "완벽보다 완료가 먼저다",
-    "느려도 괜찮다, 멈추지만 않으면 된다",
-    "작은 일을 끝내는 힘이 큰 일을 만든다",
-    "미루고 싶은 그 일부터 시작하자",
-    "실패는 방향을 알려 주는 표지판이다",
-    "꾸준함은 재능을 이긴다",
-    "오늘 심은 씨앗이 언젠가 그늘이 된다",
-    "두려움은 해 보기 전이 가장 크다",
-    "남이 아니라 어제의 나와 비교하자",
-    "넘어진 자리가 다시 시작하는 자리다",
-    "생각이 길어지면 용기는 줄어든다",
-    "오 분만 해 보자, 그게 시작이다",
-    "쉬어 가도 된다, 포기만 하지 말자",
-    "잘하려 하지 말고 일단 하자",
-    "기회는 준비된 사람에게 먼저 보인다",
-    "어려운 길 끝에 좋은 경치가 있다",
-    "한 번에 하나씩 하면 결국 다 된다",
-    "지금이 가장 빠른 때다",
-    "작은 성공이 모이면 자신감이 된다",
-    "하기 싫은 날 해낸 것이 실력이 된다",
-    "문제는 풀리라고 있는 것이다",
-    "천천히 가는 사람이 멀리 간다",
-    "오늘의 선택이 일 년 뒤의 나를 만든다",
-    "버틴 하루는 반드시 힘이 된다",
-    "끝까지 가 본 사람만 끝을 안다",
-    "어제보다 한 뼘만 더 나아가자",
-    "시작한 사람만이 고칠 수 있다",
-    "땀 흘린 시간은 어디 가지 않는다",
-    "할 수 있다고 믿으면 절반은 온 것이다",
+    "천 리 길도 한 걸음부터 시작된다",  # 노자, 도덕경 64장
+    "배우고 때때로 익히면 또한 기쁘지 아니한가",  # 공자, 논어 학이편
+    "멈추지 않고 새기면 쇠와 돌에도 새길 수 있다",  # 순자, 권학편
+    "신에게는 아직 열두 척의 배가 있습니다",  # 이순신, 1597년 (이분, 이충무공 행록)
+    "하루라도 책을 읽지 않으면 입안에 가시가 돋는다",  # 안중근, 뤼순 감옥에서 쓴 글씨
+    "시련은 있어도 실패는 없다",  # 정주영, 1991년 자서전 제목
+    "시작한 사람은 이미 절반을 해낸 것이다",  # 호라티우스, 서간시 1권 2
+    "오늘을 붙잡아라",  # 호라티우스, 송가 1권 11
+    "운명은 용감한 자를 돕는다",  # 베르길리우스, 아이네이스 10권
+    "할 수 있다고 믿기에 할 수 있다",  # 베르길리우스, 아이네이스 5권
+    "떨어지는 물방울이 돌을 뚫는다",  # 오비디우스, 흑해에서 온 편지 4권 10
+    "삶이 있는 한 희망은 있다",  # 키케로, 아티쿠스에게 보낸 편지 9권 10
+    "길을 막는 것이 곧 길이 된다",  # 마르쿠스 아우렐리우스, 명상록 5권 20
+    "인간은 노력하는 한 방황한다",  # 괴테, 파우스트
+    "나를 죽이지 못하는 것은 나를 더 강하게 만든다",  # 니체, 우상의 황혼
+    "나는 내 운명의 주인, 내 영혼의 선장이다",  # 윌리엄 어니스트 헨리, 시 인빅터스
+    "노력하고, 구하고, 찾고, 굴복하지 않으리",  # 테니슨, 시 율리시스
+    "자기 자신을 믿어라",  # 에머슨, 자기 신뢰
+    "오늘 할 수 있는 일을 내일로 미루지 마라",  # 벤저민 프랭클린, 부자가 되는 길 (1758)
+    "우연은 준비된 사람만 돕는다",  # 파스퇴르, 1854년 릴 과학대학 개교 연설
+    "위대한 일은 작은 일들이 모여 이루어진다",  # 반 고흐, 1882년 10월 22일 테오에게 보낸 편지
+    "천재는 1%의 영감과 99%의 노력이다",  # 에디슨, 1932년 하퍼스 먼슬리에 실린 말
+    "상상력은 지식보다 중요하다",  # 아인슈타인, 1929년 새터데이 이브닝 포스트 인터뷰
+    "나는 날마다 모든 면에서 점점 더 좋아지고 있다",  # 에밀 쿠에, 자기암시
+    "우리가 두려워할 것은 두려움 그 자체뿐이다",  # 프랭클린 루스벨트, 1933년 취임 연설
+    "결코 굴복하지 마라. 결코, 결코, 결코",  # 처칠, 1941년 해로 스쿨 연설
+    "쉬워서가 아니라 어렵기 때문에 한다",  # 케네디, 1962년 라이스 대학 연설
+    "나에게는 꿈이 있습니다",  # 마틴 루서 킹, 1963년 워싱턴 행진 연설
+    "인간은 파괴될 수는 있어도 패배하지는 않는다",  # 헤밍웨이, 노인과 바다
+    "다시 시도하라. 다시 실패하라. 더 낫게 실패하라",  # 사뮈엘 베케트, 최악을 향하여
 ]
+
+# Where Claude looks on a given day, so the days differ in more than the sentence.
+FIELDS = ["철학자", "과학자", "작가나 시인", "예술가", "운동선수", "기업가", "정치가나 지도자", "동양 고전", "한국 인물"]
 
 ASK_CHARS = 28      # what Claude is asked to stay within
 MAX_CHARS = 40      # what is accepted: three rows of the Large widget at most
-RECENT_DAYS = 14    # quotes of this many past days are handed over as "do not repeat"
-EXAMPLES = 6        # lines from QUOTES shown as the tone to keep
+RECENT_DAYS = 60    # quotes of this many past days are handed over as "do not repeat"
 WRITE_TIMEOUT = 90  # seconds, CLI start included
 RETRY_SECONDS = 30 * 60
 MAX_TRIES = 3       # per day; after that the day keeps its line from QUOTES
 
 SYSTEM = (
-    "너는 kittyson 위젯에 매일 한 줄씩 올라가는 '오늘의 명언'을 쓰는 작가야. "
-    "읽은 사람이 움직이고 싶어지는 문장을 담백하게 쓴다."
+    "너는 kittyson 위젯에 매일 한 줄씩 올라가는 '오늘의 명언'을 고르는 편집자야. "
+    "실제 인물이 실제로 남긴 말만, 알려진 그대로 옮긴다."
 )
 
-PROMPT = """오늘의 명언을 한 줄 써 줘.
+PROMPT = """오늘의 명언을 하나 골라 줘.
 
 오늘: {day} {weekday}
+오늘 찾아볼 곳: {field}
 
 규칙
-- 읽는 사람이 오늘 할 일을 시작하고 싶어지는, 동기를 북돋는 문장.
-- 한국어 한 문장, 공백 포함 {ask}자 이내. 이모지, 따옴표, 줄바꿈은 쓰지 마.
-- 네가 새로 쓴 문장이어야 해. 실제 인물의 말을 옮기거나 사람 이름을 붙이지 마.
-- 뻔한 구호보다 그림이 떠오르는 문장이 좋아. 요일을 살짝 비춰도 좋아.
-- 하루 종일 걸려 있는 문장이야. 아침, 저녁 같은 시간대는 넣지 마.
-- 아래 '최근에 쓴 문장'과 문장도 소재도 겹치지 않게.
+- 실제 인물이 실제로 남긴, 읽는 사람이 오늘 할 일을 시작하고 싶어지는 명언.
+- 책, 연설, 편지, 인터뷰처럼 출처가 분명한 말만 고른다. 지어내지 마.
+- 누가 했는지 확실하지 않은 말, 다른 사람의 말로 잘못 알려진 말, 속담은 고르지 않는다.
+- 한국어로, 널리 쓰이는 번역 그대로. 공백 포함 {ask}자 이내인 명언을 고르고, 길이를 맞추려고 줄이거나 바꾸지 않는다.
+- quote 에는 문장만 넣는다. 이름, 이모지, 따옴표, 줄바꿈은 넣지 않는다. 말한 사람은 author 에 적는다.
+- 아래 '최근에 나온 명언'과 겹치지 않게.
 
-말투 예시
-{examples}
-
-최근에 쓴 문장
+최근에 나온 명언
 {recent}
 """
 
 SCHEMA = {
     "type": "object",
     "additionalProperties": False,
-    "required": ["quote"],
-    "properties": {"quote": {"type": "string"}},
+    "required": ["quote", "author"],
+    "properties": {"quote": {"type": "string"}, "author": {"type": "string"}},
 }
 
 
@@ -102,7 +103,8 @@ def quote_for(d: date) -> str:
 
 
 class Writer(Protocol):
-    async def write(self, day: date, recent: list[str]) -> str: ...
+    async def write(self, day: date, recent: list[str]) -> tuple[str, str]:
+        """The quote and who said it."""
 
 
 def _bullets(lines: list[str]) -> str:
@@ -110,12 +112,12 @@ def _bullets(lines: list[str]) -> str:
 
 
 def build_prompt(day: date, recent: list[str]) -> str:
-    rng = random.Random(f"examples:{day.isoformat()}")
+    rng = random.Random(f"field:{day.isoformat()}")
     return PROMPT.format(
         day=day.isoformat(),
         weekday=clock.weekday_ko(day),
+        field=rng.choice(FIELDS),
         ask=ASK_CHARS,
-        examples=_bullets(rng.sample(QUOTES, EXAMPLES)),
         recent=_bullets(recent) if recent else "- (아직 없음)",
     )
 
@@ -142,7 +144,7 @@ class ClaudeWriter:
     def __init__(self, model: str | None):
         self._model = model
 
-    async def write(self, day: date, recent: list[str]) -> str:
+    async def write(self, day: date, recent: list[str]) -> tuple[str, str]:
         options = ClaudeAgentOptions(
             tools=[],
             setting_sources=[],  # nothing from this machine's Claude settings leaks in
@@ -158,8 +160,9 @@ class ClaudeWriter:
         if result is None or result.is_error or not result.structured_output:
             detail = (result.errors or result.result) if result else "no result"
             raise RuntimeError(f"claude gave no quote: {detail}")
-        log.info("quote written: turns=%s cost=%s", result.num_turns, result.total_cost_usd)
-        return str(result.structured_output["quote"])
+        log.info("quote picked: turns=%s cost=%s", result.num_turns, result.total_cost_usd)
+        answer = result.structured_output
+        return str(answer["quote"]), str(answer.get("author", ""))
 
 
 class DailyQuote:
@@ -228,7 +231,7 @@ class DailyQuote:
 
     async def _write(self, day: date) -> None:
         try:
-            text = await asyncio.wait_for(self._writer.write(day, self.recent(day)), WRITE_TIMEOUT)
+            text, by = await asyncio.wait_for(self._writer.write(day, self.recent(day)), WRITE_TIMEOUT)
             line = clean(text)
         except Exception as exc:
             log.warning("quote for %s not written (try %s of %s): %s", day, self._tries, self._max_tries, exc)
@@ -236,9 +239,10 @@ class DailyQuote:
         self._dir.mkdir(parents=True, exist_ok=True)
         path = self._path(day)
         tmp = path.with_suffix(".tmp")
-        tmp.write_text(json.dumps({"line": line, "source": "claude"}, ensure_ascii=False, indent=2), encoding="utf-8")
+        record = {"line": line, "by": by, "source": "claude"}
+        tmp.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
         tmp.replace(path)
-        log.info("quote of %s: %s", day, line)
+        log.info("quote of %s: %s (%s)", day, line, by)
 
     async def wait(self) -> None:
         """Wait for the writing in progress, if any. For tests and for a clean shutdown."""
