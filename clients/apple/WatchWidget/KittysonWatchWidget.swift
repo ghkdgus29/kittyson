@@ -8,7 +8,7 @@ struct KittysonWatchWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "KittysonWatchWidget", provider: Provider()) { entry in
             Complication(entry: entry)
-                .containerBackground(for: .widget) { CatPhoto(url: entry.snapshot.photo) }
+                .containerBackground(for: .widget) { CatPhoto(image: entry.snapshot.photo) }
         }
         .configurationDisplayName("kittyson")
         .description("누르면 kittyson이 열립니다")

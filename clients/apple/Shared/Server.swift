@@ -1,5 +1,6 @@
 import Foundation
 import ImageIO
+import UIKit
 
 /// Text colors for today's photo, as /cat/today.json gives them.
 struct Theme: Codable, Equatable {
@@ -14,7 +15,7 @@ struct Theme: Codable, Equatable {
 struct Snapshot {
     var fields = ["time", "date", "weekday", "weather", "quote"].map { Field(key: $0, value: "\"…\"") }
     var theme = Theme()
-    var photo: URL?
+    var photo: UIImage?   // the picture itself: its file keeps one name, so only a new image redraws
 
     /// The lines to draw: the server's, with today's date from this device, the count when
     /// counting, and only the keys in `only` when the screen is too small for all of them.
@@ -63,7 +64,7 @@ enum Server {
            let info = try? JSONDecoder().decode([String: Theme].self, from: only(data, "theme")) {
             snapshot.theme = info["theme"] ?? Theme()
         }
-        if FileManager.default.fileExists(atPath: file("cat.jpg").path) { snapshot.photo = file("cat.jpg") }
+        snapshot.photo = UIImage(contentsOfFile: file("cat.jpg").path)
         return snapshot
     }
 

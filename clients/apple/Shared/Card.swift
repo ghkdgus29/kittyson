@@ -2,12 +2,12 @@ import SwiftUI
 
 /// Today's cat, filling whatever space it is given. A plain dark color until the first photo arrives.
 struct CatPhoto: View {
-    var url: URL?
+    var image: UIImage?
 
     var body: some View {
         Color(hex: "#2b2b33")
             .overlay {
-                if let url, let image = UIImage(contentsOfFile: url.path) {
+                if let image {
                     Image(uiImage: image).resizable().scaledToFill()
                 }
             }
@@ -31,7 +31,7 @@ struct Card: View {
         let veil = Color(hex: snapshot.theme.halo).opacity(compact && mode != .photo ? 0.35 : 0)
         JsonText(snapshot: snapshot, mode: mode, count: count, timer: timer, now: now, only: only, compact: compact)
             .padding(inset)
-            .background { CatPhoto(url: snapshot.photo).overlay(veil).ignoresSafeArea() }
+            .background { CatPhoto(image: snapshot.photo).overlay(veil).ignoresSafeArea() }
             .contentShape(Rectangle())
             .animation(.easeInOut(duration: 0.2), value: mode)
     }

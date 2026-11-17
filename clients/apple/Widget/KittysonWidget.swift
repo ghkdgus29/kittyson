@@ -9,7 +9,7 @@ struct KittysonWidget: Widget {
         StaticConfiguration(kind: "KittysonWidget", provider: Provider()) { entry in
             JsonText(snapshot: entry.snapshot, now: entry.date)
                 .padding(14)
-                .containerBackground(for: .widget) { CatPhoto(url: entry.snapshot.photo) }
+                .containerBackground(for: .widget) { CatPhoto(image: entry.snapshot.photo) }
         }
         .configurationDisplayName("kittyson")
         .description("오늘의 고양이와 JSON")
