@@ -3,7 +3,7 @@ import Foundation
 /// The timer: four lengths to pick from and, once one is started, the moment it ends.
 /// A tap on a length starts it. While it runs a double tap cancels it; once it is over, one tap puts it away.
 struct Countdown: Codable, Equatable {
-    static let steps = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 45, 60]   // the minutes the crown steps through
+    static let steps = Array(1...60)  // the minutes the crown steps through
 
     var slots = [1, 5, 15, 30]        // the minutes to pick from
     var end: Date?                    // nil while it is not running

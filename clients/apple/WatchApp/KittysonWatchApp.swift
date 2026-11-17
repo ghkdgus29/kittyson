@@ -37,8 +37,9 @@ struct Screen: View {
         .onLongPressGesture(perform: hold)
         .simultaneousGesture(DragGesture(minimumDistance: 0, coordinateSpace: .global).onChanged { touch = $0.startLocation })
         .focusable()
+        // Four modes are a slow turn apart; sixty minutes need a faster crown.
         .digitalCrownRotation($crown, from: 0, through: Double((setting == nil ? Mode.allCases.count : Countdown.steps.count) - 1),
-                              by: 1, sensitivity: .low, isContinuous: false, isHapticFeedbackEnabled: true)
+                              by: 1, sensitivity: setting == nil ? .low : .medium, isContinuous: false, isHapticFeedbackEnabled: true)
         .onChange(of: crown) {
             let stop = Int(crown.rounded())
             if let setting {
