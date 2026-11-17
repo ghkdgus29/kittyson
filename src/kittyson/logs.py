@@ -32,6 +32,8 @@ def configure() -> None:
     logging.basicConfig(
         level=logging.INFO, format=FORMAT, handlers=[logging.StreamHandler(sys.stderr), to_file], force=True
     )
+    # httpx logs every request with its URL, and the URL of a Pixabay search has the API key in it.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     for name in UVICORN_LOGGERS:
         logger = logging.getLogger(name)
         if not logger.propagate:  # otherwise its records reach the root handlers anyway

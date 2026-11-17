@@ -17,7 +17,7 @@ import httpx
 from fastapi import Depends
 
 from kittyson import __version__
-from kittyson.cats import CataasProvider, DailyCat, LocalProvider, Provider
+from kittyson.cats import CataasProvider, ClaudeChecker, DailyCat, LocalProvider, PixabayProvider, Provider
 from kittyson.config import settings
 from kittyson.quote import ClaudeWriter, DailyQuote
 from kittyson.weather import WeatherService
@@ -37,9 +37,13 @@ def get_weather_service() -> WeatherService:
 def get_daily_cat() -> DailyCat:
     # Where cats come from. The day's seed picks one by weight (see each provider's default),
     # and the others follow in this order as fallbacks. To add or drop a source, edit this list.
+    http = get_http_client()
     providers: list[Provider] = [
         LocalProvider(settings.cats_inbox),
-        CataasProvider(get_http_client()),
+        # Pixabay needs a key. Without one, cataas, which needs none.
+        PixabayProvider(http, settings.pixabay_key, ClaudeChecker(settings.cat_model))
+        if settings.pixabay_key
+        else CataasProvider(http),
     ]
     return DailyCat(providers, settings.cats_daily, settings.cat_size)
 

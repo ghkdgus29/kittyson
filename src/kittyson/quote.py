@@ -17,9 +17,8 @@ from datetime import date
 from pathlib import Path
 from typing import Protocol
 
-from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
-
 from kittyson import clock
+from kittyson.claude import ask
 
 log = logging.getLogger(__name__)
 
@@ -135,33 +134,11 @@ def clean(text: str) -> str:
 
 
 class ClaudeWriter:
-    """Asks Claude through the Claude Agent SDK: no tools, one structured answer.
-
-    Signs in the way the claude CLI does: CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY in the
-    environment, or a logged-in claude on this machine.
-    """
-
     def __init__(self, model: str | None):
         self._model = model
 
     async def write(self, day: date, recent: list[str]) -> tuple[str, str]:
-        options = ClaudeAgentOptions(
-            tools=[],
-            setting_sources=[],  # nothing from this machine's Claude settings leaks in
-            system_prompt=SYSTEM,
-            output_format={"type": "json_schema", "schema": SCHEMA},
-            max_turns=3,  # the structured answer is a tool call, so one turn is not enough
-            model=self._model,
-        )
-        result: ResultMessage | None = None
-        async for message in query(prompt=build_prompt(day, recent), options=options):
-            if isinstance(message, ResultMessage):
-                result = message
-        if result is None or result.is_error or not result.structured_output:
-            detail = (result.errors or result.result) if result else "no result"
-            raise RuntimeError(f"claude gave no quote: {detail}")
-        log.info("quote picked: turns=%s cost=%s", result.num_turns, result.total_cost_usd)
-        answer = result.structured_output
+        answer = await ask(build_prompt(day, recent), system=SYSTEM, schema=SCHEMA, model=self._model)
         return str(answer["quote"]), str(answer.get("author", ""))
 
 

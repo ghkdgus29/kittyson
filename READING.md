@@ -1,12 +1,12 @@
 # 코드 읽는 순서
 
-kittyson 코드를 직접 읽으며 확인할 때의 순서다. 분량은 서버 파이썬 약 1,000줄, 웹 화면 약 360줄, 애플 클라이언트 스위프트 약 800줄이고, 테스트가 따로 700줄쯤 있다.
+kittyson 코드를 직접 읽으며 확인할 때의 순서다. 분량은 서버 파이썬 약 1,200줄, 웹 화면 약 360줄, 애플 클라이언트 스위프트 약 800줄이고, 테스트가 따로 750줄쯤 있다.
 
 ## 전체 그림
 
 ```
 Open-Meteo (날씨) ──┐
-사진 폴더 / cataas ──┼─ 서버 (src/kittyson) ─┬─ /api/widget ─────┬─ 웹 화면 (src/kittyson/static)
+사진 폴더 / Pixabay ─┼─ 서버 (src/kittyson) ─┬─ /api/widget ─────┬─ 웹 화면 (src/kittyson/static)
 Claude (명언) ──────┘                        ├─ /cat/today.jpg ──┤
                                              └─ /cat/today.json ─┴─ 아이폰·워치 (clients/apple)
 ```
@@ -32,18 +32,18 @@ Claude (명언) ──────┘                        ├─ /cat/today.j
 |---|---|---|---|
 | 1 | [schemas.py](src/kittyson/schemas.py) | 11 | JSON의 모양 전부. 키 순서가 곧 화면 순서다 |
 | 2 | [main.py](src/kittyson/main.py) | 77 | 경로 다섯 개. `widget()` 이 다섯 값을 어디서 가져오는지, `lifespan` 이 시작할 때 무엇을 하는지 |
-| 3 | [deps.py](src/kittyson/deps.py) | 69 | 날씨, 고양이, 명언 객체를 한 번만 만들어 모든 요청이 같이 쓰는 방법. 고양이를 어디서 받아 올지 정하는 목록도 여기 있다 |
-| 4 | [config.py](src/kittyson/config.py), [clock.py](src/kittyson/clock.py) | 50, 28 | 설정값과 `KITTYSON_*` 환경 변수, 시간대 처리 |
+| 3 | [deps.py](src/kittyson/deps.py) | 73 | 날씨, 고양이, 명언 객체를 한 번만 만들어 모든 요청이 같이 쓰는 방법. 고양이를 어디서 받아 올지 정하는 목록도 여기 있다 |
+| 4 | [config.py](src/kittyson/config.py), [clock.py](src/kittyson/clock.py) | 55, 28 | 설정값과 `KITTYSON_*` 환경 변수, 시간대 처리 |
 | 5 | [weather.py](src/kittyson/weather.py) | 105 | `line()` → `current()`. 30분 캐시와, 실패하면 마지막 값을 그대로 쓰는 부분. 위쪽 `WMO` 표는 훑기만 한다 |
 | 6 | [cats/base.py](src/kittyson/cats/base.py) | 149 | `get()` → `cached()` → `_make()` → `_fetch()`. 같은 날에는 같은 고양이가 나오는 이유(날짜로 정한 난수와 `daily/` 파일), 모두 실패하면 `latest()`, `VERSION` 의 역할 |
-| 7 | [cats/local.py](src/kittyson/cats/local.py), [cats/cataas.py](src/kittyson/cats/cataas.py), [images.py](src/kittyson/images.py) | 29, 26, 20 | 사진을 주는 두 곳과 정사각형으로 자르기. `weight()` 가 0이면 그날 후보에서 빠진다 |
+| 7 | [cats/local.py](src/kittyson/cats/local.py), [cats/pixabay.py](src/kittyson/cats/pixabay.py), [cats/check.py](src/kittyson/cats/check.py), [cats/cataas.py](src/kittyson/cats/cataas.py), [images.py](src/kittyson/images.py) | 29, 75, 58, 26, 20 | 사진을 주는 세 곳과 정사각형으로 자르기. `weight()` 가 0이면 그날 후보에서 빠진다. `PixabayProvider.pick()` 이 고양이가 아닌 사진을 거르고 다음 사진으로 넘어가는 부분(`described_as_cat()`, `_is_cat()`) |
 | 8 | [theme.py](src/kittyson/theme.py) | 179 | 맨 아래 `analyze()` 부터 읽고 `_measure()`, `_readability()`, `_pick_hue()`, `_color()` 로 올라간다. 맨 위 주석의 네 가지 규칙이 코드 어디에 있는지 짝지어 본다 |
-| 9 | [quote.py](src/kittyson/quote.py) | 255 | `DailyQuote.line()` → `_start()` → `_write()` → `ClaudeWriter.write()` → `clean()`. `line()` 이 기다리지 않고 바로 답하는 것, 다시 시도하는 규칙(`_start`), 위쪽 상수들 |
-| 10 | [logs.py](src/kittyson/logs.py) | 38 | 로그가 두 곳에 남는 방법 |
+| 9 | [quote.py](src/kittyson/quote.py), [claude.py](src/kittyson/claude.py) | 232, 38 | `DailyQuote.line()` → `_start()` → `_write()` → `ClaudeWriter.write()` → `claude.ask()` → `clean()`. Claude를 부르는 곳은 `claude.py` 하나이고, 고양이 확인도 같은 함수를 쓴다. `line()` 이 기다리지 않고 바로 답하는 것, 다시 시도하는 규칙(`_start`), 위쪽 상수들 |
+| 10 | [logs.py](src/kittyson/logs.py) | 40 | 로그가 두 곳에 남는 방법 |
 
 가장 긴 두 파일(`theme.py`, `quote.py`)은 뒤로 미뤘다. 앞의 일곱 단계만 읽어도 요청 하나가 처음부터 끝까지 어떻게 처리되는지 알 수 있다.
 
-**테스트**는 [tests/test_app.py](tests/test_app.py)부터 읽는다. `client` 픽스처가 진짜 날씨와 Claude를 가짜로 바꿔 끼우는 방법(`dependency_overrides`)을 보여 준다. 나머지는 모듈과 이름이 같다: `test_cats.py`, `test_theme.py`, `test_quote.py`, `test_weather.py`, `test_logs.py`, `test_clock.py`.
+**테스트**는 [tests/test_app.py](tests/test_app.py)부터 읽는다. `client` 픽스처가 진짜 날씨와 Claude를 가짜로 바꿔 끼우는 방법(`dependency_overrides`)을 보여 준다. 나머지는 모듈과 이름이 같다: `test_cats.py`, `test_pixabay.py`, `test_theme.py`, `test_quote.py`, `test_weather.py`, `test_logs.py`, `test_clock.py`.
 
 ## 2. 웹 화면
 

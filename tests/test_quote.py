@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from claude_agent_sdk import ResultMessage
 
-from kittyson import quote
+from kittyson import claude, quote
 from kittyson.quote import QUOTES, ClaudeWriter, DailyQuote, build_prompt, clean, quote_for
 
 DAY = date(2026, 11, 11)
@@ -140,7 +140,7 @@ async def test_claude_writer_reads_the_structured_answer(monkeypatch: pytest.Mon
         seen["prompt"], seen["options"] = prompt, options
         yield result()
 
-    monkeypatch.setattr(quote, "query", fake_query)
+    monkeypatch.setattr(claude, "query", fake_query)
     assert await ClaudeWriter("haiku").write(DAY, []) == (WRITTEN, BY)
     assert "2026-11-11 수요일" in seen["prompt"]
     assert seen["options"].tools == [] and seen["options"].model == "haiku"
@@ -150,6 +150,6 @@ async def test_claude_writer_raises_when_there_is_no_answer(monkeypatch: pytest.
     async def fake_query(*, prompt, options):
         yield result(is_error=True, structured_output=None, result="Invalid API key")
 
-    monkeypatch.setattr(quote, "query", fake_query)
+    monkeypatch.setattr(claude, "query", fake_query)
     with pytest.raises(RuntimeError, match="Invalid API key"):
         await ClaudeWriter("haiku").write(DAY, [])

@@ -20,8 +20,13 @@ class Settings(BaseSettings):
 
     cat_size: int = 1024
 
-    # The model that picks the day's quote. A claude CLI alias or a full model id.
-    quote_model: str = "opus"
+    # A pixabay.com API key (free, pixabay.com/api/docs). With it the cats come from Pixabay, without it from cataas.com.
+    pixabay_key: str = ""
+    # The model that looks at a Pixabay photo to see whether it is a cat. A full model id or a claude CLI alias.
+    cat_model: str = "claude-opus-5-5"
+
+    # The model that picks the day's quote.
+    quote_model: str = "claude-opus-5-5"
 
     data_dir: Path = Path("data")
 

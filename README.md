@@ -30,7 +30,10 @@ uv run pytest
 
 ## 고양이 사진
 
-- `data/cats/inbox/` 에 사진을 넣으면 풀에 포함된다. 비어 있으면 cataas.com 에서 하루 1장 받아온다.
+- 하루에 한 장을 [Pixabay](https://pixabay.com)에서 받아 온다([pixabay.py](src/kittyson/cats/pixabay.py)). 고양이 사진을 검색해 인기순 500장 가운데 하나를 고른다. `.env` 에 `KITTYSON_PIXABAY_KEY` 가 있어야 하고(무료, 로그인하면 [API 문서](https://pixabay.com/api/docs/)에 나온다), 없으면 키가 필요 없는 cataas.com 에서 받는다.
+- 검색 결과에는 고양이가 아닌 사진도 섞여 있고, 정사각형이 아닌 사진은 양옆이 잘린다. 그래서 받기 전에 두 번 확인한다([check.py](src/kittyson/cats/check.py)). 사진 태그에 cat, kitten 같은 단어가 있고 lion, tiger 같은 단어가 없어야 하고, 그다음 Claude가 화면에 나갈 정사각형을 보고 고양이인지 답한다(기본 `claude-opus-5-5`, `KITTYSON_CAT_MODEL`). 고양이가 아니면 다른 사진으로 다시 시도하고, 다섯 장까지 본다.
+- Claude를 못 부르면(토큰 없음 등) 태그만 믿고 받는다. 인증은 아래 명언과 같다.
+- `data/cats/inbox/` 에 사진을 넣으면 풀에 포함된다. 직접 넣은 사진은 확인하지 않는다.
 - 오늘의 고양이는 `data/cats/daily/YYYY-MM-DD.jpg` 에 확정된다. 바꾸고 싶으면 그 파일과 `.json` 을 지운다.
 - 사진에서 읽어낸 글자색은 옆의 `.json` 에 버전(`v`)과 함께 저장한다. 분석 방식을 바꾸면 [base.py](src/kittyson/cats/base.py)의 `VERSION` 을 올린다. 버전이 다른 `.json` 은 캐시로 치지 않아서, 사진은 그대로 두고 다시 읽어낸다.
 
@@ -43,7 +46,7 @@ uv run pytest
 - 그날 첫 요청 때 백그라운드로 골라 날짜 파일에 확정한다. 고르기 전 몇 초 동안과, Claude를 못 부르는 날에는 출처를 확인해 둔 명언 목록(`QUOTES`, 줄마다 말한 사람과 출처가 적혀 있다)에서 날짜로 고른 한 줄이 나온다.
 - 인증은 `claude` CLI와 같다. 서버는 `.env` 의 `CLAUDE_CODE_OAUTH_TOKEN`(`claude setup-token` 으로 발급) 또는 `ANTHROPIC_API_KEY`, 로컬은 `claude` 로그인 상태면 된다. 없으면 목록의 명언만 쓴다.
 - 실패하면 30분 뒤 다시 시도하고, 하루 3번까지만 한다. 28자 이내인 명언을 부탁하고, 40자를 넘는 문장은 버린다.
-- 오늘 명언을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_QUOTE_MODEL`(기본 `opus`. 실제로 한 말인지 가려내는 일이라 작은 모델보다 낫다).
+- 오늘 명언을 바꾸고 싶으면 그 날짜 파일을 지운다. 모델은 `KITTYSON_QUOTE_MODEL`(기본 `claude-opus-5-5`. 실제로 한 말인지 가려내는 일이라 작은 모델보다 낫다).
 
 ## 날씨
 

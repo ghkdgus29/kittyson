@@ -86,3 +86,8 @@ def test_the_app_logs_while_it_runs(log_dir: Path):
     with TestClient(app):
         logging.getLogger("kittyson").info("running")
     assert "INFO kittyson: running" in (log_dir / "app.log").read_text(encoding="utf-8")
+
+
+def test_httpx_request_lines_are_left_out(log_dir: Path):
+    logs.configure()
+    assert not logging.getLogger("httpx").isEnabledFor(logging.INFO)  # they carry URLs, and one has an API key
