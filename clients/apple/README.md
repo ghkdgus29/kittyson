@@ -7,7 +7,7 @@
 | `KittysonWatch` | 애플워치 앱. 워치페이스처럼 쓰는 화면이고, 모드와 숫자 세기는 여기에만 있다 |
 | `KittysonWatchWidget` | 워치 컴플리케이션·스마트 스택 위젯. 누르면 워치 앱이 열린다 |
 | `KittysonWidget` | 아이폰 홈 화면 위젯 (Large). 고양이와 JSON을 보여 주기만 한다 |
-| `Kittyson` | 아이폰 앱. 위젯과 워치 앱을 담는 그릇이고, 같은 카드를 보여 준다 |
+| `Kittyson` | 아이폰 앱. 위젯과 워치 앱을 담는 그릇이다. 열면 같은 카드와, 그 아래에 kittyson 사용법(주로 워치 앱)을 보여 준다 |
 
 ## 워치 앱
 
@@ -66,6 +66,7 @@ Shared/          네 타깃이 같이 쓰는 코드
   Card.swift       사진 + JSON
   Timeline.swift   위젯 갱신 (30분마다 서버 확인)
 App/ Widget/ WatchApp/ WatchWidget/   타깃마다 화면 하나씩
+  App/Guide.swift  아이폰 앱에 나오는 사용법. 워치 앱의 동작을 바꾸면 이 글도 고친다
 Tests/main.swift   Layout·Counter·Countdown 점검
 ```
 

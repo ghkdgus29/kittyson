@@ -25,6 +25,7 @@
 		7170DB401BB120C5B6636B58 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
 		73859BEAFA024CD4909DFCB0 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
 		74B7942206C9A084C28A36B0 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
+		7A9405CC52D9F48F050BD548 /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA3ACC3162CFAD5893B1C72 /* Guide.swift */; };
 		80189E3CE3437E8D13070FDD /* KittysonWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEAE61C5BC3E38FC953924F /* KittysonWatchWidget.swift */; };
 		8B606662D315517E1DDBA257 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
 		8EA218FB40353BEDBE9D1999 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
@@ -111,6 +112,7 @@
 
 /* Begin PBXFileReference section */
 		1A78F51E087CCEE7A48E26E7 /* Countdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Countdown.swift; sourceTree = "<group>"; };
+		1AA3ACC3162CFAD5893B1C72 /* Guide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		1F636DCAB545CE55D3A76848 /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
 		1FE4EC49839F66F13F25B575 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
 		30CDA15E8F8DF64A751BF14E /* Kittyson.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kittyson.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,6 +185,7 @@
 		95F827C7755DDF0586F459C3 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				1AA3ACC3162CFAD5893B1C72 /* Guide.swift */,
 				47CA750CC178D2BAA998064F /* KittysonApp.swift */,
 			);
 			path = App;
@@ -341,6 +344,7 @@
 				5B262E71F4D912F3DC42D99C /* Card.swift in Sources */,
 				26AF8AC033F9545A5CBE30C4 /* Countdown.swift in Sources */,
 				1C0B4838B5B51B3D0D3FD0F8 /* Counter.swift in Sources */,
+				7A9405CC52D9F48F050BD548 /* Guide.swift in Sources */,
 				FEF1DDA34D08766E2C2D3BAE /* JsonText.swift in Sources */,
 				9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */,
 				A7B2AFA296F56AA2738A2426 /* Layout.swift in Sources */,
