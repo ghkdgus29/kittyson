@@ -27,10 +27,13 @@
 		74B7942206C9A084C28A36B0 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
 		7A9405CC52D9F48F050BD548 /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA3ACC3162CFAD5893B1C72 /* Guide.swift */; };
 		80189E3CE3437E8D13070FDD /* KittysonWatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEAE61C5BC3E38FC953924F /* KittysonWatchWidget.swift */; };
+		8854026BA11E33BF369C5A7F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */; };
 		8B606662D315517E1DDBA257 /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4216436C53ABB89DA28A0468 /* Counter.swift */; };
 		8EA218FB40353BEDBE9D1999 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EC7CFC0330092D96E2A367 /* Store.swift */; };
 		9184FB0E36F4244445178BA2 /* KittysonWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6F1AB47B837D6DA7E17AACFA /* KittysonWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		930BE6A07C273CA1883F1878 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
+		97CA901A33EFF93F4A1AE819 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */; };
+		98CC887CA5C861D3BC5B03E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */; };
 		99C43A552E25CA420F17D22B /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF18E5C11BC2E9F3CC6AFAD /* Server.swift */; };
 		9F862CB773D426783AAD9AA3 /* KittysonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CA750CC178D2BAA998064F /* KittysonApp.swift */; };
 		A012BD87E0AC2731E9212D06 /* KittysonWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750D8187BACA14786886E88C /* KittysonWidget.swift */; };
@@ -38,6 +41,7 @@
 		A7B2AFA296F56AA2738A2426 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B4C13A35D7E53D11D092DB /* Layout.swift */; };
 		AA672369AF0D9EA96D09FFCC /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
 		AFD778F1A9D12969EE6FAE5A /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C15465A81CD7D1A6299CFD /* Card.swift */; };
+		B1844E5DD4FAD01122B11DE0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */; };
 		B24C59A55CDCD94832BA8B26 /* Countdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F51E087CCEE7A48E26E7 /* Countdown.swift */; };
 		B6BE9B70A5C942EE8D921BD8 /* JsonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0FE798C9B62F280859B97 /* JsonText.swift */; };
 		B8FB6DCDDD9F8311B8598EA7 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F636DCAB545CE55D3A76848 /* Timeline.swift */; };
@@ -115,6 +119,7 @@
 		1AA3ACC3162CFAD5893B1C72 /* Guide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		1F636DCAB545CE55D3A76848 /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
 		1FE4EC49839F66F13F25B575 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
+		2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30CDA15E8F8DF64A751BF14E /* Kittyson.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kittyson.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4216436C53ABB89DA28A0468 /* Counter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Counter.swift; sourceTree = "<group>"; };
 		43C15465A81CD7D1A6299CFD /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -202,6 +207,7 @@
 		FDF690FF8D1D61902E2D4D25 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				2EBD0CC21C33A72F6DC7999E /* Assets.xcassets */,
 				43C15465A81CD7D1A6299CFD /* Card.swift */,
 				1A78F51E087CCEE7A48E26E7 /* Countdown.swift */,
 				4216436C53ABB89DA28A0468 /* Counter.swift */,
@@ -222,6 +228,7 @@
 			buildConfigurationList = C349B4F2B5E6BDFAAE63223C /* Build configuration list for PBXNativeTarget "Kittyson" */;
 			buildPhases = (
 				3BFB4A620F2E2C51C1DFA060 /* Sources */,
+				55C682D6E9679C43D6B1DD8B /* Resources */,
 				5BB45CB518C8C815DE5651E6 /* Embed Foundation Extensions */,
 				6BCBE3089A074C59498BADAC /* Embed Watch Content */,
 			);
@@ -243,6 +250,7 @@
 			buildConfigurationList = 63BFF4F3681653EAB42879A2 /* Build configuration list for PBXNativeTarget "KittysonWidget" */;
 			buildPhases = (
 				81DA35D004EE987CEEFE7AB3 /* Sources */,
+				D93E15B5177AD0C56F6A0724 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -260,6 +268,7 @@
 			buildConfigurationList = BD6D693613A0D1A2C5E1B80A /* Build configuration list for PBXNativeTarget "KittysonWatch" */;
 			buildPhases = (
 				B6919D3A08DD499CCDE2A131 /* Sources */,
+				93402927E658EF989B56C789 /* Resources */,
 				621262ECC4A329926F3C7860 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -279,6 +288,7 @@
 			buildConfigurationList = 2EB2FD6E1F77954E7286AC40 /* Build configuration list for PBXNativeTarget "KittysonWatchWidget" */;
 			buildPhases = (
 				5B49C9A7ECF20C25B52F51E5 /* Sources */,
+				206EA3B7BEEE993343833564 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -335,6 +345,41 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		206EA3B7BEEE993343833564 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8854026BA11E33BF369C5A7F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55C682D6E9679C43D6B1DD8B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97CA901A33EFF93F4A1AE819 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93402927E658EF989B56C789 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B1844E5DD4FAD01122B11DE0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D93E15B5177AD0C56F6A0724 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98CC887CA5C861D3BC5B03E2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3BFB4A620F2E2C51C1DFA060 /* Sources */ = {

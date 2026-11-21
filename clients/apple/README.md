@@ -49,14 +49,15 @@ Xcode 26, iOS 17 이상, watchOS 11 이상.
 
 - 무료 Apple 계정이면 7일마다 다시 실행(⌘R)해서 설치해야 한다.
 - 서버 주소는 빌드할 때 앱에 들어간다. 주소를 바꾸면 다시 빌드한다.
-- 서버가 HTTP여도 되도록 ATS를 풀어 두었다.
+- 공개 주소는 HTTPS여야 한다(`KITTYSON_SCHEME = https`). HTTP는 집 안의 서버(사설 IP, `.local`, `localhost`)에만 허용한다.
 
 ## 구조
 
 ```
 project.yml      Xcode 프로젝트의 원본. 타깃을 고치면 `xcodegen generate` (brew install xcodegen)
-Config/          서버 주소(xcconfig), 생성되는 Info.plist·entitlements
+Config/          서버 주소(xcconfig), 생성되는 Info.plist·entitlements, 앱 아이콘 원본(AppIcon.svg)
 Shared/          네 타깃이 같이 쓰는 코드
+  Assets.xcassets  앱 아이콘 (아이폰과 워치가 같은 그림을 쓴다)
   Layout.swift     JSON을 칸에 맞추기: 들어가는 가장 큰 글자 크기와 줄바꿈 (웹 화면과 같은 규칙, 워치 앱은 좁아서 따로)
   Counter.swift    숫자 세기 규칙 (워치 앱)
   Countdown.swift  타이머 규칙 (워치 앱)
@@ -80,5 +81,6 @@ swiftc Shared/Counter.swift Shared/Countdown.swift Shared/Layout.swift Tests/mai
 
 ```sh
 xcodebuild -project Kittyson.xcodeproj -scheme Kittyson \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' KITTYSON_HOST=127.0.0.1:8000 build
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  KITTYSON_SCHEME=http KITTYSON_HOST=127.0.0.1:8000 build
 ```

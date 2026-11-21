@@ -24,7 +24,7 @@
 	<string>$(KITTYSON_SCHEME)://$(KITTYSON_HOST)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
 	<key>NSExtension</key>

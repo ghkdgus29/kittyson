@@ -44,13 +44,13 @@ struct Guide: View {
     // "\n" starts a new line. One sentence to a line, and a long sentence broken where it pauses.
     private static let topics = [
         Topic(title: "kittyson",
-              note: "매일 바뀌는 고양이 사진 위에 시간, 날씨, 오늘의 명언을 JSON으로 보여 줍니다.\n이 앱은 워치 앱과 아이폰 위젯 두 가지를 지원합니다.\n워치 앱은 워치 페이스처럼 쓰고, 아이폰 위젯은 홈 화면에 올려 고양이와 JSON을 보여 줍니다."),
-        Topic(title: "워치 페이스처럼 쓰기",
-              note: "watchOS는 앱이 워치 페이스가 되는 것을 허용하지 않습니다.\n대신 kittyson을 계속 앞에 둡니다.",
+              note: "매일 바뀌는 고양이 사진 위에 시간, 날씨, 오늘의 명언을 JSON으로 보여 줍니다.\n이 앱은 워치 앱과 아이폰 위젯 두 가지를 지원합니다.\n워치 앱은 계속 앞에 두고 쓰고, 아이폰 위젯은 홈 화면에 올려 고양이와 JSON을 보여 줍니다."),
+        Topic(title: "워치에서 계속 앞에 두기",
+              note: "손목을 들 때마다 kittyson이 보이도록 워치 설정을 바꿉니다.",
               rows: [
                 ("1", "워치의 **설정 → 일반 → 시계 화면으로 돌아가기 → kittyson → 사용자화**에서 **1시간 후**를 고릅니다."),
-                ("2", "워치에서 kittyson을 엽니다.\n이제 손목을 들면 시계 대신 kittyson이 보입니다."),
-                ("3", "1시간 넘게 보지 않으면 원래 워치 페이스로 돌아갑니다."),
+                ("2", "워치에서 kittyson을 엽니다.\n이제 손목을 들면 kittyson이 보입니다."),
+                ("3", "1시간 넘게 보지 않으면 시계 화면으로 돌아갑니다."),
               ]),
         Topic(title: "디지털 크라운",
               note: "돌리면 모드가 바뀝니다.",
@@ -87,5 +87,7 @@ struct Guide: View {
               ]),
         Topic(title: "아이폰 위젯",
               note: "홈 화면을 길게 눌러 **편집 → 위젯 추가 → kittyson**을 고릅니다.\n고양이와 JSON 보여 주기 기능만 지원합니다."),
+        Topic(title: "개인정보",
+              note: "kittyson은 계정이 없고 개인정보를 모으지 않습니다.\n[개인정보 처리방침](https://github.com/ghkdgus29/kittyson/blob/main/PRIVACY.md)"),
     ]
 }
