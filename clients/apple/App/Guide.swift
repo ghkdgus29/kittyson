@@ -87,6 +87,8 @@ struct Guide: View {
               ]),
         Topic(title: "아이폰 위젯",
               note: "홈 화면을 길게 눌러 **편집 → 위젯 추가 → kittyson**을 고릅니다.\n고양이와 JSON 보여 주기 기능만 지원합니다."),
+        Topic(title: "고양이 사진",
+              note: "사진은 [Pixabay](https://pixabay.com)에서 가져옵니다."),
         Topic(title: "개인정보",
               note: "kittyson은 계정이 없고 개인정보를 모으지 않습니다.\n[개인정보 처리방침](https://github.com/ghkdgus29/kittyson/blob/main/PRIVACY.md)"),
     ]

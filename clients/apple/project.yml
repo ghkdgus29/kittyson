@@ -30,6 +30,7 @@ targets:
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
         NSLocalNetworkUsageDescription: 집 안의 kittyson 서버에서 고양이와 JSON을 받아옵니다.
+        ITSAppUsesNonExemptEncryption: false   # HTTPS only, so no export paperwork at upload
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:
@@ -73,6 +74,7 @@ targets:
         CFBundleDisplayName: kittyson
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
+        ITSAppUsesNonExemptEncryption: false   # HTTPS only, so no export paperwork at upload
         WKApplication: true
         WKBackgroundModes: [alarm]   # the timer's alarm, see WatchApp/Alarm.swift
         WKCompanionAppBundleIdentifier: com.ghkdgus29.kittyson
