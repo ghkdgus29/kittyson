@@ -30,7 +30,7 @@ JSON은 개발자가 데이터를 적을 때 쓰는 형식입니다. "weekday": 
   "time": "09:41:00",
   "date": "2026-11-21",
   "weekday": "토요일",
-  "weather": "☀️ 12° ↑15 ↓7",
+  "weather": "맑음 12° ↑15 ↓7",
   "quote": "시련은 있어도 실패는 없다"
 }
 
@@ -48,6 +48,8 @@ iPhone 위젯
 • 고양이 사진과 명언은 하루에 한 번 바뀝니다.
 • 날씨는 서울 기준입니다.
 • 계정이 없고 개인정보를 모으지 않습니다.
+
+설명 칸은 이모지를 받지 않는다("invalid characters"). 그래서 날씨 줄의 ☀️ 를 "맑음"으로 적었다.
 
 ## 키워드
 
@@ -69,5 +71,5 @@ The photo and the JSON come from our server at https://kit-son.site, which is pu
 
 | 파일 | 칸 | 크기 |
 |---|---|---|
-| iphone-1.png, iphone-2.png | iPhone 6.9" | 1320×2868 |
+| iphone-1.png, iphone-2.png | iPhone 6.3" (iPhone 17 Pro) | 1206×2622 |
 | watch-1-json.png, watch-2-timer.png, watch-3-count.png, watch-4-photo.png | Apple Watch Series 11 (46mm) | 416×496 |
