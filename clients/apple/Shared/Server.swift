@@ -2,7 +2,7 @@ import Foundation
 import ImageIO
 import UIKit
 
-/// Text colors for today's photo, as /cat/today.json gives them.
+/// Text colors for the cat's photo, as /api/today gives them.
 struct Theme: Codable, Equatable {
     var punct = "#ffffff"
     var key = "#9cdcfe"
@@ -11,20 +11,22 @@ struct Theme: Codable, Equatable {
     var halo_alpha = 0.9
 }
 
-/// What the server last said: the widget JSON in its own order, the colors, the photo.
+/// What the server last said: the lines in its own order, the colors, the photo.
 struct Snapshot {
-    var fields = ["time", "date", "weekday", "weather", "quote"].map { Field(key: $0, value: "\"…\"") }
+    var fields = ["time", "date", "weekday", "weather", "quote", "by"].map { Field(key: $0, value: "\"…\"") }
     var theme = Theme()
     var photo: UIImage?   // the picture itself: its file keeps one name, so only a new image redraws
 
     /// The lines to draw: the server's, with today's date from this device, the count when
     /// counting, and only the keys in `only` when the screen is too small for all of them.
-    /// The timer's line takes the place of the weekday: a line more would make every letter smaller.
-    func lines(now: Date, timer: Field? = nil, count: Int? = nil, only: [String]? = nil) -> [Field] {
-        var lines = fields.map { field in
+    /// `short` (the watch): the weekday moves into the date's row, "26-11-24 화", and the timer's line
+    /// takes that row while it runs. A row more would make every letter smaller.
+    func lines(now: Date, timer: Field? = nil, count: Int? = nil, only: [String]? = nil, short: Bool = false) -> [Field] {
+        let clock = Clock(now: now)
+        var lines = fields.compactMap { field in
             switch field.key {
-            case "date": Field(key: "date", value: "\"\(Clock(now: now).date)\"")
-            case "weekday": timer ?? field
+            case "date": timer ?? Field(key: "date", value: "\"\(short ? clock.shortDate : clock.date)\"")
+            case "weekday": short ? nil : field
             default: field
             }
         }
@@ -56,13 +58,10 @@ enum Server {
     /// The last answer kept on disk.
     static func cached() -> Snapshot {
         var snapshot = Snapshot()
-        if let data = try? Data(contentsOf: file("widget.json")) {
+        if let data = try? Data(contentsOf: file("today.json")) {
             let fields = parse(data)
             if !fields.isEmpty { snapshot.fields = fields }
-        }
-        if let data = try? Data(contentsOf: file("theme.json")),
-           let info = try? JSONDecoder().decode([String: Theme].self, from: only(data, "theme")) {
-            snapshot.theme = info["theme"] ?? Theme()
+            if let cat = cat(data) { snapshot.theme = cat.theme }
         }
         snapshot.photo = UIImage(contentsOfFile: file("cat.jpg").path)
         return snapshot
@@ -81,14 +80,10 @@ enum Server {
 
     /// Ask the server now and keep what it says. Whatever fails keeps its old file.
     static func refresh() async {
-        guard let widget = try? await get("/api/widget"),
-              let day = (try? JSONSerialization.jsonObject(with: widget) as? [String: Any])?["date"] as? String else { return }
-        try? widget.write(to: file("widget.json"), options: .atomic)
-        if let info = try? await get("/cat/today.json?d=\(day)") {
-            try? info.write(to: file("theme.json"), options: .atomic)
-        }
-        // The photo changes once a day, so it is fetched once a day.
-        if Store.defaults.string(forKey: "catDay") != day,
+        guard let today = try? await get("/api/today"), !parse(today).isEmpty else { return }
+        try? today.write(to: file("today.json"), options: .atomic)
+        // The photo changes when the cat does, so it is fetched once for each cat.
+        if let day = cat(today)?.day, Store.defaults.string(forKey: "catDay") != day,
            let jpg = try? await get("/cat/today.jpg?d=\(day)"), let small = shrink(jpg) {
             try? small.write(to: file("cat.jpg"), options: .atomic)
             Store.defaults.set(day, forKey: "catDay")
@@ -103,9 +98,10 @@ enum Server {
         return data
     }
 
-    /// The widget JSON as lines, in the server's order.
+    /// The "widget" of /api/today as lines, in the server's order.
     static func parse(_ data: Data) -> [Field] {
-        guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        guard let today = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let object = today["widget"] as? [String: Any],
               let raw = String(data: data, encoding: .utf8) else { return [] }
         // JSONSerialization forgets the order of the keys. The raw text still has it.
         func position(_ key: String) -> String.Index { raw.range(of: "\"\(key)\":")?.lowerBound ?? raw.endIndex }
@@ -118,11 +114,14 @@ enum Server {
         return data.flatMap { String(data: $0, encoding: .utf8) } ?? "null"
     }
 
-    /// `{"theme": {...}}` cut out of /cat/today.json, whose other values are not themes.
-    private static func only(_ data: Data, _ key: String) -> Data {
-        let object = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
-        return (try? JSONSerialization.data(withJSONObject: [key: object[key] ?? [:]])) ?? Data()
+    /// The "cat" of /api/today: the day its photo is of, and the colors that read well on it.
+    /// nil while the server has no cat yet.
+    private static func cat(_ data: Data) -> Cat? {
+        (try? JSONDecoder().decode(Today.self, from: data))?.cat
     }
+
+    private struct Today: Decodable { var cat: Cat? }
+    private struct Cat: Decodable { var day: String; var theme: Theme }
 
     private static func shrink(_ jpg: Data) -> Data? {
         let options: [CFString: Any] = [

@@ -13,7 +13,7 @@ struct JsonText: View {
     var compact = false         // a screen as narrow as a watch: Rules.compact, and heavier letters
 
     var body: some View {
-        let fields = snapshot.lines(now: now, timer: timer, count: mode == .count ? count : nil, only: only)
+        let fields = snapshot.lines(now: now, timer: timer, count: mode == .count ? count : nil, only: only, short: compact)
         let halo = Color(hex: snapshot.theme.halo).opacity(mode == .photo ? 0 : snapshot.theme.halo_alpha)
         GeometryReader { box in
             let fit = Layout.fit(fields, width: box.size.width, height: box.size.height, braces: braces, rules: compact ? .compact : Rules())

@@ -1,44 +1,21 @@
 import json
-import random
 from datetime import date
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
-from kittyson.cats import DailyCat, LocalProvider, base
+from kittyson.cats import Cat, CatStore, DailyCat, Photo
 from kittyson.images import square
-from tests.conftest import make_jpeg
+from kittyson.theme import Theme
+from tests.conftest import FakeSource, make_jpeg
 
 DAY = date(2026, 11, 11)
+YESTERDAY = date(2026, 11, 10)
 
 
-class FailingProvider:
-    key = "boom"
-
-    def weight(self) -> int:
-        return 1
-
-    async def pick(self, day: date, rng: random.Random) -> bytes:
-        raise RuntimeError("down")
-
-
-class StaticProvider:
-    key = "static"
-
-    def __init__(self, data: bytes):
-        self.data = data
-        self.calls = 0
-
-    def weight(self) -> int:
-        return 1
-
-    async def pick(self, day: date, rng: random.Random) -> bytes:
-        self.calls += 1
-        return self.data
-
-
-def saved(cat) -> dict:
-    return json.loads(cat.path.with_suffix(".json").read_text(encoding="utf-8"))
+def daily(tmp_path: Path, source: FakeSource, size: int = 64) -> DailyCat:
+    return DailyCat(source, CatStore(tmp_path), size)
 
 
 def test_square_crops_center_to_size():
@@ -46,85 +23,95 @@ def test_square_crops_center_to_size():
     assert img.size == (256, 256)
 
 
-def test_local_provider_empty_inbox_has_zero_weight(inbox: Path):
-    assert LocalProvider(inbox).weight() == 0
+async def test_a_made_cat_is_a_square_photo_and_a_record_next_to_it(tmp_path: Path, jpeg_bytes: bytes):
+    cats = daily(tmp_path, FakeSource(Photo(id="42", data=jpeg_bytes, skipped=("7",))), size=128)
+    assert cats.get(DAY) is None
+
+    await cats.make(DAY)
+    cat = cats.get(DAY)
+    assert (cat.day, cat.source, cat.id, cat.skipped) == (DAY, "fake", "42", ["7"])
+    assert cats.photo(cat) == tmp_path / "2026-11-11.jpg"
+    assert Image.open(cats.photo(cat)).size == (128, 128)
+
+    saved = json.loads((tmp_path / "2026-11-11.json").read_text(encoding="utf-8"))
+    assert saved["id"] == "42" and saved["theme"]["str"] == cat.theme.string
+    assert "v" not in saved  # no versions: a record is its fields
 
 
-async def test_local_provider_picks_a_picture_from_the_inbox(inbox: Path, jpeg_bytes: bytes):
-    (inbox / "sesame.jpg").write_bytes(jpeg_bytes)
-    (inbox / "notes.txt").write_text("not a picture", encoding="utf-8")
-    p = LocalProvider(inbox)
-    assert p.weight() > 0
-    assert await p.pick(date(2026, 11, 10), random.Random(1)) == jpeg_bytes
+async def test_a_day_is_made_once_and_stays_the_same_after_a_restart(tmp_path: Path):
+    source = FakeSource()
+    cats = daily(tmp_path, source)
+    await cats.make(DAY)
+    await cats.make(DAY)
+    assert len(source.seen) == 1
+
+    again = daily(tmp_path, source)
+    await again.make(DAY)
+    assert len(source.seen) == 1 and again.get(DAY) == cats.get(DAY)
 
 
-async def test_daily_cat_is_cached_and_stable(tmp_path: Path, jpeg_bytes: bytes):
-    provider = StaticProvider(jpeg_bytes)
-    daily = DailyCat([provider], tmp_path / "daily", size=128)
-    day = date(2026, 11, 10)
-
-    first = await daily.get(day)
-    second = await daily.get(day)
-    assert first == second
-    assert provider.calls == 1
-    assert first.path.exists()
-    assert Image.open(first.path).size == (128, 128)
-
-    # different day, different fetch
-    await daily.get(date(2026, 11, 11))
-    assert provider.calls == 2
+async def test_the_theme_is_read_off_the_photo(tmp_path: Path):
+    cats = daily(tmp_path, FakeSource(Photo(id="1", data=make_jpeg(color=(250, 250, 250)))))
+    await cats.make(DAY)
+    assert cats.get(DAY).theme.mode == "dark"  # a white photo wants dark letters
 
 
-async def test_daily_cat_falls_through_to_next_provider(tmp_path: Path, jpeg_bytes: bytes):
-    ok = StaticProvider(jpeg_bytes)
-    daily = DailyCat([FailingProvider(), ok], tmp_path / "daily", size=64)
-    cat = await daily.get(date(2026, 11, 10))
-    assert cat is not None and cat.source == "static"
+async def test_the_source_is_told_every_photo_used_or_skipped_so_far(tmp_path: Path, jpeg_bytes: bytes):
+    source = FakeSource(
+        Photo(id="10", data=jpeg_bytes, skipped=("8", "9")),
+        Photo(id="11", data=jpeg_bytes),
+        Photo(id="12", data=jpeg_bytes),
+    )
+    cats = daily(tmp_path, source)
+    for day in (date(2026, 11, 9), YESTERDAY, DAY):
+        await cats.make(day)
+    assert source.seen == [set(), {"8", "9", "10"}, {"8", "9", "10", "11"}]
 
 
-async def test_daily_cat_reuses_latest_when_all_fail(tmp_path: Path, jpeg_bytes: bytes):
-    daily = DailyCat([StaticProvider(jpeg_bytes)], tmp_path / "daily", size=64)
-    yesterday = await daily.get(date(2026, 11, 9))
+async def test_a_day_without_a_cat_shows_the_most_recent_one(tmp_path: Path):
+    cats = daily(tmp_path, FakeSource(Photo(id="1", data=make_jpeg()), RuntimeError("down")))
+    await cats.make(YESTERDAY)
+    with pytest.raises(RuntimeError):
+        await cats.make(DAY)
 
-    broken = DailyCat([FailingProvider()], tmp_path / "daily", size=64)
-    today = await broken.get(date(2026, 11, 10))
-    assert today == yesterday
-
-
-async def test_daily_cat_none_when_nothing_available(tmp_path: Path):
-    daily = DailyCat([FailingProvider()], tmp_path / "daily", size=64)
-    assert await daily.get(date(2026, 11, 10)) is None
+    cat = cats.get(DAY)
+    assert cat.day == YESTERDAY and cats.photo(cat).exists()
+    assert cats.get(YESTERDAY - (DAY - YESTERDAY)) is None  # nothing before the first cat
 
 
-async def test_daily_cat_has_a_theme_read_off_the_photo(tmp_path: Path):
-    daily = DailyCat([StaticProvider(make_jpeg(color=(250, 250, 250)))], tmp_path / "daily", size=64)
-    cat = await daily.get(DAY)
-    assert cat.theme["mode"] == "dark"  # a white photo wants dark letters
-    assert saved(cat)["v"] == base.VERSION
+def test_cats_saved_before_there_were_ids_are_still_read(tmp_path: Path, jpeg_bytes: bytes):
+    theme = {"mode": "dark", "punct": "#101010", "key": "#054565", "str": "#623705", "halo": "#ffffff",
+             "halo_alpha": 0.86, "luma": [0.177, 0.413, 0.863]}  # fmt: skip
+    old = {
+        "2026-11-09": {"name": "탱자", "mood": "snacky", "source": "cataas"},
+        "2026-11-10": {"v": 4, "source": "pixabay", "theme": theme},
+    }
+    for day, record in old.items():
+        (tmp_path / f"{day}.json").write_text(json.dumps(record), encoding="utf-8")
+        (tmp_path / f"{day}.jpg").write_bytes(jpeg_bytes)
+    store = CatStore(tmp_path)
+
+    assert store.load(date(2026, 11, 9)) == Cat(day=date(2026, 11, 9), source="cataas")
+    cat = store.load(YESTERDAY)
+    assert cat.source == "pixabay" and cat.id == "" and cat.theme == Theme.model_validate(theme)
+    assert store.seen() == set()  # a cat without an id rules no photo out
 
 
-async def test_cat_saved_by_another_version_is_read_again_from_the_same_photo(tmp_path: Path, jpeg_bytes: bytes):
-    provider = StaticProvider(jpeg_bytes)
-    daily = DailyCat([provider], tmp_path / "daily", size=64)
-    cat = await daily.get(DAY)
-    photo = cat.path.read_bytes()
-
-    meta = cat.path.with_suffix(".json")
-    meta.write_text(json.dumps({**saved(cat), "v": base.VERSION - 1, "theme": {"mode": "old"}}), encoding="utf-8")
-    assert daily.cached(DAY) is None  # another version's .json is not a cache hit
-
-    cat = await daily.get(DAY)
-    assert cat.theme["mode"] in ("light", "dark")
-    assert provider.calls == 1 and cat.path.read_bytes() == photo  # no new photo was fetched
-    assert saved(cat)["v"] == base.VERSION
-    assert daily.cached(DAY) == cat
+def test_a_record_that_cannot_be_read_is_no_cat(tmp_path: Path):
+    (tmp_path / "2026-11-11.json").write_text("{half a file", encoding="utf-8")
+    (tmp_path / "2026-11-10.json").write_text(json.dumps({"theme": "no source"}), encoding="utf-8")
+    (tmp_path / "notes.json").write_text("{}", encoding="utf-8")
+    store = CatStore(tmp_path)
+    assert store.load(DAY) is None and store.load(YESTERDAY) is None
+    assert store.before(date(2026, 12, 1)) == []
 
 
-async def test_latest_takes_a_cat_saved_by_an_older_version(tmp_path: Path, jpeg_bytes: bytes):
-    daily = DailyCat([StaticProvider(jpeg_bytes)], tmp_path / "daily", size=64)
-    cat = await daily.get(date(2026, 11, 9))
-    old = {"name": "탱자", "mood": "snacky", "source": "cataas"}  # no version, no theme
-    cat.path.with_suffix(".json").write_text(json.dumps(old), encoding="utf-8")
-
-    broken = DailyCat([FailingProvider()], tmp_path / "daily", size=64)
-    assert (await broken.get(DAY)).path == cat.path
+async def test_before_lists_earlier_days_newest_first(tmp_path: Path):
+    cats = daily(tmp_path, FakeSource())
+    days = [date(2026, 11, n) for n in (8, 9, 10, 11)]
+    for day in days:
+        await cats.make(day)
+    store = CatStore(tmp_path)
+    assert [cat.day for cat in store.before(DAY)] == [days[2], days[1], days[0]]
+    assert [cat.day for cat in store.before(DAY, 2)] == [days[2], days[1]]
+    assert store.days() == days[::-1]

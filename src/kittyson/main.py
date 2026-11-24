@@ -1,9 +1,13 @@
 """FastAPI app: the screen, the JSON, and today's cat.
 
+No request makes anything: the day's cat and quote are made ahead of the day (scheduler.py),
+and a request reads what is there.
+
 Started the same way everywhere: `uvicorn kittyson.main:app` (see README and Dockerfile).
 """
 
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -13,7 +17,9 @@ from fastapi.staticfiles import StaticFiles
 from kittyson import __version__, clock, deps, logs
 from kittyson.config import settings
 from kittyson.deps import DailyCatDep, DailyQuoteDep, WeatherDep
-from kittyson.schemas import Widget
+from kittyson.quote import DailyQuote
+from kittyson.schemas import Today, TodayCat, Widget
+from kittyson.weather import WeatherService
 
 STATIC = Path(__file__).parent / "static"
 
@@ -21,9 +27,6 @@ STATIC = Path(__file__).parent / "static"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logs.configure()
-    settings.cats_inbox.mkdir(parents=True, exist_ok=True)
-    settings.cats_daily.mkdir(parents=True, exist_ok=True)
-    settings.quotes.mkdir(parents=True, exist_ok=True)
     deps.startup()
     try:
         yield
@@ -45,33 +48,51 @@ async def healthz():
     return {"ok": True, "meow": "🐱"}
 
 
-@app.get("/api/widget", response_model=Widget)
-async def widget(weather: WeatherDep, quote: DailyQuoteDep):
-    now = clock.now(settings.tz)
-    today = now.date()
-    body = Widget(
+async def lines(now: datetime, weather: WeatherService, quotes: DailyQuote) -> Widget:
+    quote = quotes.get(now.date())
+    return Widget(
         time=clock.time_str(now),
         date=clock.date_str(now),
-        weekday=clock.weekday_ko(today),
+        weekday=clock.weekday_ko(now.date()),
         weather=await weather.line(),
-        quote=quote.line(today),
+        quote=quote.line,
+        by=quote.by,
     )
-    return JSONResponse(body.model_dump(), headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/today", response_model=Today)
+async def today(weather: WeatherDep, cats: DailyCatDep, quotes: DailyQuoteDep):
+    """All of today but the photo: the lines to draw, and the cat with its text colors."""
+    now = clock.now(settings.tz)
+    cat = cats.get(now.date())
+    body = Today(
+        widget=await lines(now, weather, quotes),
+        cat=TodayCat(day=cat.day, source=cat.source, theme=cat.theme) if cat else None,
+    )
+    return JSONResponse(body.model_dump(mode="json"), headers={"Cache-Control": "no-store"})
 
 
 @app.get("/cat/today.jpg", include_in_schema=False)
 async def cat_today(cats: DailyCatDep):
-    cat = await cats.get(clock.today(settings.tz))
+    cat = cats.get(clock.today(settings.tz))
     if cat is None:
         return JSONResponse({"error": "no cat yet"}, status_code=503)
-    return FileResponse(cat.path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=300"})
+    return FileResponse(cats.photo(cat), media_type="image/jpeg", headers={"Cache-Control": "public, max-age=300"})
+
+
+# The two routes below are what the first app in the App Store (1.0) asks. /api/today has both in one answer.
+
+
+@app.get("/api/widget", response_model=Widget)
+async def widget(weather: WeatherDep, quotes: DailyQuoteDep):
+    body = await lines(clock.now(settings.tz), weather, quotes)
+    return JSONResponse(body.model_dump(), headers={"Cache-Control": "no-store"})
 
 
 @app.get("/cat/today.json")
 async def cat_today_meta(cats: DailyCatDep):
-    """Where today's cat came from, and the text colors that read well over the picture."""
-    cat = await cats.get(clock.today(settings.tz))
+    cat = cats.get(clock.today(settings.tz))
     if cat is None:
         return JSONResponse({"error": "no cat yet"}, status_code=503)
-    body = {"date": cat.day.isoformat(), "source": cat.source, "theme": cat.theme}
+    body = {"date": cat.day.isoformat(), "source": cat.source, "theme": cat.theme.model_dump()}
     return JSONResponse(body, headers={"Cache-Control": "public, max-age=300"})

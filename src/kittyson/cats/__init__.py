@@ -1,7 +1,5 @@
-from kittyson.cats.base import CatOfTheDay, DailyCat, Provider
-from kittyson.cats.cataas import CataasProvider
-from kittyson.cats.check import ClaudeChecker
-from kittyson.cats.local import LocalProvider
-from kittyson.cats.pixabay import PixabayProvider
+from kittyson.cats.check import ClaudeCatChecker
+from kittyson.cats.daily import Cat, CatStore, DailyCat, Photo, Source
+from kittyson.cats.pixabay import Pixabay
 
-__all__ = ["CatOfTheDay", "DailyCat", "Provider", "CataasProvider", "ClaudeChecker", "LocalProvider", "PixabayProvider"]
+__all__ = ["Cat", "CatStore", "ClaudeCatChecker", "DailyCat", "Photo", "Pixabay", "Source"]

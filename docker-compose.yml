@@ -29,7 +29,7 @@ services:
     ports:
       - "8787:8000"
     volumes:
-      # 오늘의 고양이 캐시(daily) + 직접 넣는 사진(inbox)
+      # 날짜별 고양이(cats/daily), 명언(quotes), 로그(logs)
       - ./data:/code/data
 
   tunnel:

@@ -14,9 +14,10 @@ No scrim is drawn over the photo: the cat stays untouched, only the text adapts.
 
 import colorsys
 import math
-from pathlib import Path
+from typing import Literal
 
 from PIL import Image
+from pydantic import BaseModel, ConfigDict, Field
 
 GRID = (48, 48)     # the photo is averaged into this many cells
 
@@ -30,16 +31,19 @@ LIGHT_BIAS = 1.5         # dark text has to beat light text by this contrast fac
 ACCENT_CONTRAST = 4.5    # keys and strings aim for this ratio against the median brightness
 ACCENT_MAX = 0.72        # light accents stop here: any brighter and they wash out to white
 
-# What clients use before a theme is known. Same colors the screen started with.
-DEFAULT = {
-    "mode": "light",
-    "punct": "#ffffff",
-    "key": "#9cdcfe",
-    "str": "#ffd9a8",
-    "halo": "#000000",
-    "halo_alpha": 0.9,
-    "luma": [0.0, 0.0, 0.0],
-}
+
+class Theme(BaseModel):
+    """The text colors of one photo. The defaults are what shows before a photo has been measured."""
+
+    model_config = ConfigDict(serialize_by_alias=True, validate_by_name=True)
+
+    mode: Literal["light", "dark"] = "light"       # the letters, not the photo
+    punct: str = "#ffffff"
+    key: str = "#9cdcfe"
+    string: str = Field("#ffd9a8", alias="str")    # "str" in the JSON
+    halo: str = "#000000"
+    halo_alpha: float = 0.9
+    luma: tuple[float, float, float] = (0.0, 0.0, 0.0)  # the photo's 10th, 50th and 90th percentile brightness
 
 
 def _linear(channel: float) -> float:
@@ -140,40 +144,35 @@ def _readability(samples: list[tuple[float, float]]) -> tuple[float, float]:
     return light / total, dark / total
 
 
-def analyze(img: Image.Image) -> dict:
+def analyze(img: Image.Image) -> Theme:
     samples, dominant, strength = _measure(img)
     p10, p50, p90 = (_percentile(samples, q) for q in (0.10, 0.50, 0.90))
     light_score, dark_score = _readability(samples)
 
     key_hue = _pick_hue(KEY_HUES, dominant, strength)
     str_hue = _pick_hue(STR_HUES, dominant, strength)
+    luma = (round(p10, 3), round(p50, 3), round(p90, 3))
 
     if dark_score > light_score + math.log(LIGHT_BIAS):
         accent = _clamp((p50 + 0.05) / ACCENT_CONTRAST - 0.05, 0.02, 0.10)
-        theme = {
-            "mode": "dark",
-            "punct": "#101010",
-            "key": _color(key_hue, accent, 0.9),
-            "str": _color(str_hue, accent, 0.9),
-            "halo": "#ffffff",
+        return Theme(
+            mode="dark",
+            punct="#101010",
+            key=_color(key_hue, accent, 0.9),
+            string=_color(str_hue, accent, 0.9),
+            halo="#ffffff",
             # Dark corners are where black letters get lost.
-            "halo_alpha": round(_clamp(0.6 + (0.5 - p10) * 0.8, 0.6, 0.95), 2),
-        }
-    else:
-        accent = _clamp((p50 + 0.05) * ACCENT_CONTRAST - 0.05, 0.58, ACCENT_MAX)
-        theme = {
-            "mode": "light",
-            "punct": "#ffffff",
-            "key": _color(key_hue, accent, 0.95),
-            "str": _color(str_hue, accent, 0.95),
-            "halo": "#000000",
-            # Bright patches are where white letters get lost.
-            "halo_alpha": round(_clamp(0.6 + (p90 - 0.15) * 0.7, 0.6, 0.95), 2),
-        }
-
-    return {**theme, "luma": [round(p10, 3), round(p50, 3), round(p90, 3)]}
-
-
-def for_file(path: Path) -> dict:
-    with Image.open(path) as img:
-        return analyze(img)
+            halo_alpha=round(_clamp(0.6 + (0.5 - p10) * 0.8, 0.6, 0.95), 2),
+            luma=luma,
+        )
+    accent = _clamp((p50 + 0.05) * ACCENT_CONTRAST - 0.05, 0.58, ACCENT_MAX)
+    return Theme(
+        mode="light",
+        punct="#ffffff",
+        key=_color(key_hue, accent, 0.95),
+        string=_color(str_hue, accent, 0.95),
+        halo="#000000",
+        # Bright patches are where white letters get lost.
+        halo_alpha=round(_clamp(0.6 + (p90 - 0.15) * 0.7, 0.6, 0.95), 2),
+        luma=luma,
+    )

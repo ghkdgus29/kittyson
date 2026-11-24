@@ -1,128 +1,121 @@
-import asyncio
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
 from claude_agent_sdk import ResultMessage
 
-from kittyson import claude, quote
-from kittyson.quote import QUOTES, ClaudeWriter, DailyQuote, build_prompt, clean, quote_for
+from kittyson import claude
+from kittyson.quote import QUOTES, ClaudeQuoteWriter, DailyQuote, Quote, fallback
+from kittyson.store import DayStore
+from tests.conftest import FakeWriter
 
 DAY = date(2026, 11, 11)
-WRITTEN = "수요일의 반은 이미 내 편이다"
-BY = "아무개"
+WRITTEN = FakeWriter.LINE
+BY = FakeWriter.BY
 
 
-class FakeWriter:
-    def __init__(self, *answers):
-        self.answers = list(answers)
-        self.calls: list[tuple[date, list[str]]] = []
-
-    async def write(self, day: date, recent: list[str]) -> tuple[str, str]:
-        self.calls.append((day, recent))
-        answer = self.answers.pop(0)
-        if isinstance(answer, Exception):
-            raise answer
-        return answer, BY
+def daily(directory: Path, writer: FakeWriter) -> DailyQuote:
+    return DailyQuote(writer, DayStore(directory, Quote))
 
 
-def save(directory: Path, day: date, line: str) -> None:
-    directory.mkdir(parents=True, exist_ok=True)
-    (directory / f"{day.isoformat()}.json").write_text(json.dumps({"line": line}), encoding="utf-8")
+def quote(day: date, line: str, by: str = BY) -> Quote:
+    return Quote(day=day, line=line, by=by)
 
 
-def test_list_pick_is_stable_per_day():
-    assert quote_for(DAY) == quote_for(DAY)
-    assert quote_for(DAY) in QUOTES
-    assert any(quote_for(date(2026, 11, n)) != quote_for(DAY) for n in range(12, 30))
+def test_a_quote_keeps_a_plain_line_and_drops_wrapping_quotes():
+    q = Quote(day=DAY, line=f'  "{WRITTEN}"\n', by=f" {BY} ")
+    assert (q.line, q.by) == (WRITTEN, BY)
 
 
-def test_clean_keeps_a_plain_line_and_drops_wrapping_quotes():
-    assert clean(f'  "{WRITTEN}"\n') == WRITTEN
-
-
-@pytest.mark.parametrize("bad", ["", "   ", "첫 줄\n둘째 줄", '말 "속" 따옴표', "가" * (quote.MAX_CHARS + 1)])
-def test_clean_rejects_what_would_not_fit(bad: str):
+@pytest.mark.parametrize("bad", ["", "   ", "첫 줄\n둘째 줄", '말 "속" 따옴표', "가" * (Quote.LIMITS["line"] + 1)])
+def test_a_line_that_would_not_sit_well_is_refused(bad: str):
     with pytest.raises(ValueError):
-        clean(bad)
+        Quote(day=DAY, line=bad, by=BY)
 
 
-def test_every_list_line_passes_clean_and_is_as_short_as_claude_is_asked_to_be():
-    assert all(clean(line) == line and len(line) <= quote.ASK_CHARS for line in QUOTES)
+@pytest.mark.parametrize("bad", ["", "니체, 우상의 황혼 (1889년)", "이름\n둘째 줄"])
+def test_a_name_that_is_not_just_a_short_name_is_refused(bad: str):
+    with pytest.raises(ValueError):
+        Quote(day=DAY, line=WRITTEN, by=bad)
 
 
-def test_prompt_carries_the_day_and_the_recent_lines_and_asks_for_a_real_quote():
-    prompt = build_prompt(DAY, ["어제 나온 명언"])
-    for part in ("2026-11-11 수요일", "- 어제 나온 명언", "실제 인물"):
+def test_every_quote_of_the_list_is_a_quote_and_none_comes_twice():
+    for line, by in QUOTES:
+        q = Quote(day=DAY, line=line, by=by)
+        assert (q.line, q.by) == (line, by)
+    assert len({line for line, _ in QUOTES}) == len(QUOTES)
+
+
+def test_the_list_gives_each_day_its_quote_one_after_another():
+    assert fallback(DAY) == fallback(DAY)
+    days = [DAY + timedelta(days=n) for n in range(len(QUOTES))]
+    assert {fallback(day).line for day in days} == {line for line, _ in QUOTES}  # no repeat until the list is through
+
+
+def test_prompt_carries_the_day_and_the_recent_quotes_and_asks_for_a_whole_motivating_quote():
+    writer = ClaudeQuoteWriter("haiku")
+    prompt = writer.prompt(DAY, [quote(date(2026, 11, 10), "어제 나온 명언", "어제 사람")])
+    for part in ("2026-11-11 수요일", "- 어제 나온 명언 (어제 사람)", "실제 인물", "동기부여", "명언 전체"):
         assert part in prompt
-    assert any(f"오늘 찾아볼 곳: {field}\n" in prompt for field in quote.FIELDS)
+    assert f"{ClaudeQuoteWriter.ASK_CHARS}자 이내" in prompt
+    assert ClaudeQuoteWriter.ASK_CHARS <= Quote.LIMITS["line"]
 
 
-async def test_first_request_shows_the_list_pick_then_the_written_line(tmp_path: Path):
+def test_where_claude_looks_follows_from_the_day():
+    writer = ClaudeQuoteWriter("haiku")
+    assert writer.prompt(DAY, []) == writer.prompt(DAY, [])
+    fields = [
+        next(f for f in ClaudeQuoteWriter.FIELDS if f"오늘 찾아볼 곳: {f}\n" in writer.prompt(DAY + timedelta(days=n), []))
+        for n in range(len(ClaudeQuoteWriter.FIELDS))
+    ]
+    assert sorted(fields) == sorted(ClaudeQuoteWriter.FIELDS)  # each in its turn
+
+
+async def test_a_day_shows_the_list_quote_until_its_own_is_made(tmp_path: Path):
     writer = FakeWriter(WRITTEN)
-    daily = DailyQuote(writer, tmp_path)
+    quotes = daily(tmp_path, writer)
+    assert quotes.get(DAY) == fallback(DAY)  # reading makes nothing
+    assert writer.calls == []
 
-    assert daily.line(DAY) == quote_for(DAY)  # nothing written yet, and nobody waits for it
-    await daily.wait()
-    assert daily.line(DAY) == WRITTEN
-    assert daily.line(DAY) == WRITTEN
+    await quotes.make(DAY)
+    await quotes.make(DAY)
+    assert quotes.get(DAY) == quote(DAY, WRITTEN)
     assert len(writer.calls) == 1
-    assert json.loads((tmp_path / "2026-11-11.json").read_text(encoding="utf-8"))["by"] == BY  # kept, not shown
+    assert json.loads((tmp_path / "2026-11-11.json").read_text(encoding="utf-8"))["by"] == BY
 
-    # A restart keeps the day's line.
-    assert DailyQuote(FakeWriter(), tmp_path).line(DAY) == WRITTEN
+    # A restart keeps the day's quote.
+    assert daily(tmp_path, FakeWriter()).get(DAY) == quote(DAY, WRITTEN)
 
 
-async def test_writer_is_told_the_lines_of_earlier_days_only(tmp_path: Path):
-    save(tmp_path, date(2026, 11, 9), "그저께 문장")
-    save(tmp_path, date(2026, 11, 10), "어제 문장")
-    save(tmp_path, date(2026, 11, 12), "내일 문장")
+async def test_writer_is_told_the_quotes_of_earlier_days_only_newest_first(tmp_path: Path):
+    store = DayStore(tmp_path, Quote)
+    for day, line in ((9, "그저께 문장"), (10, "어제 문장"), (12, "내일 문장")):
+        store.save(quote(date(2026, 11, day), line))
     writer = FakeWriter("오늘 문장")
-    daily = DailyQuote(writer, tmp_path)
 
-    daily.line(DAY)
-    await daily.wait()
-    assert writer.calls == [(DAY, ["어제 문장", "그저께 문장"])]
+    await daily(tmp_path, writer).make(DAY)
+    assert writer.calls == [(DAY, [quote(date(2026, 11, 10), "어제 문장"), quote(date(2026, 11, 9), "그저께 문장")])]
 
 
-async def test_failure_keeps_the_list_pick_and_waits_before_retrying(tmp_path: Path):
-    writer = FakeWriter(RuntimeError("no token"), "늦게 온 문장")
-    daily = DailyQuote(writer, tmp_path, retry_seconds=3600)
+async def test_a_quote_that_cannot_be_written_or_does_not_fit_is_not_saved(tmp_path: Path):
+    too_long = "가" * (Quote.LIMITS["line"] + 1)
+    quotes = daily(tmp_path, FakeWriter(RuntimeError("no token"), too_long, "세 번째에 온 문장"))
 
-    for _ in range(3):
-        assert daily.line(DAY) == quote_for(DAY)
-        await daily.wait()
-    assert len(writer.calls) == 1
+    with pytest.raises(RuntimeError):
+        await quotes.make(DAY)
+    with pytest.raises(ValueError):
+        await quotes.make(DAY)
+    assert not list(tmp_path.glob("*")) and quotes.get(DAY) == fallback(DAY)
 
-
-async def test_retries_stop_after_max_tries_and_start_again_the_next_day(tmp_path: Path):
-    too_long = "가" * (quote.MAX_CHARS + 1)
-    writer = FakeWriter(RuntimeError("down"), too_long, "다음 날 문장")
-    daily = DailyQuote(writer, tmp_path, retry_seconds=0, max_tries=2)
-
-    for _ in range(4):
-        assert daily.line(DAY) == quote_for(DAY)
-        await daily.wait()
-    assert len(writer.calls) == 2
-    assert not list(tmp_path.glob("*.json"))
-
-    tomorrow = date(2026, 11, 12)
-    daily.line(tomorrow)
-    await daily.wait()
-    assert daily.line(tomorrow) == "다음 날 문장"
+    await quotes.make(DAY)
+    assert quotes.get(DAY).line == "세 번째에 온 문장"
 
 
-async def test_close_cancels_a_writing_in_progress(tmp_path: Path):
-    class SlowWriter:
-        async def write(self, day: date, recent: list[str]) -> tuple[str, str]:
-            await asyncio.sleep(60)
-            return "끝내 못 고른 명언", BY
-
-    daily = DailyQuote(SlowWriter(), tmp_path)
-    daily.line(DAY)
-    await daily.close()
-    assert daily.cached(DAY) is None
+def test_quotes_saved_by_the_first_version_are_still_read(tmp_path: Path):
+    old = {"line": "시련은 있어도 실패는 없다", "by": "정주영", "source": "claude"}
+    (tmp_path / "2026-11-11.json").write_text(json.dumps(old, ensure_ascii=False), encoding="utf-8")
+    assert daily(tmp_path, FakeWriter()).get(DAY) == quote(DAY, "시련은 있어도 실패는 없다", "정주영")
 
 
 def result(**over) -> ResultMessage:
@@ -133,7 +126,7 @@ def result(**over) -> ResultMessage:
     return ResultMessage(**{**fields, **over})
 
 
-async def test_claude_writer_reads_the_structured_answer(monkeypatch: pytest.MonkeyPatch):
+async def test_claude_quote_writer_reads_the_structured_answer(monkeypatch: pytest.MonkeyPatch):
     seen = {}
 
     async def fake_query(*, prompt, options):
@@ -141,15 +134,16 @@ async def test_claude_writer_reads_the_structured_answer(monkeypatch: pytest.Mon
         yield result()
 
     monkeypatch.setattr(claude, "query", fake_query)
-    assert await ClaudeWriter("haiku").write(DAY, []) == (WRITTEN, BY)
+    assert await ClaudeQuoteWriter("haiku").write(DAY, []) == (WRITTEN, BY)
     assert "2026-11-11 수요일" in seen["prompt"]
+    assert seen["options"].system_prompt == ClaudeQuoteWriter.SYSTEM
     assert seen["options"].tools == [] and seen["options"].model == "haiku"
 
 
-async def test_claude_writer_raises_when_there_is_no_answer(monkeypatch: pytest.MonkeyPatch):
+async def test_claude_quote_writer_raises_when_there_is_no_answer(monkeypatch: pytest.MonkeyPatch):
     async def fake_query(*, prompt, options):
         yield result(is_error=True, structured_output=None, result="Invalid API key")
 
     monkeypatch.setattr(claude, "query", fake_query)
     with pytest.raises(RuntimeError, match="Invalid API key"):
-        await ClaudeWriter("haiku").write(DAY, [])
+        await ClaudeQuoteWriter("haiku").write(DAY, [])

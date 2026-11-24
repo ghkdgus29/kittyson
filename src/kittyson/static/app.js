@@ -1,8 +1,8 @@
-// kittyson screen: show /api/widget as-is, tick "time" every second, poll every minute.
-// Text colors come from /cat/today.json, where the server has measured today's photo.
+// kittyson screen: show the "widget" of /api/today as-is, tick "time" every second, poll every minute.
+// The same answer names the cat: the day its photo is of, and the text colors the server measured on it.
 
 const POLL_MS = 60_000;
-const API = "/api/widget";
+const API = "/api/today";
 const MIN_FONT_PX = 6;
 const STUB_CH = 6;      // a wrapped value never leaves a last row shorter than this many characters
 
@@ -20,10 +20,9 @@ function save(key, value) { try { localStorage.setItem(key, value); } catch { /*
 
 let mode = MODES.includes(load("kittyson.mode")) ? load("kittyson.mode") : MODES[0];
 let count = Number(load("kittyson.count")) || 0;
-let data = null;        // last payload from the server
+let data = null;        // the lines last sent by the server
 let offsetMs = 0;       // server wall clock (read as if it were UTC) - device clock
-let shownDate = null;   // YYYY-MM-DD of the background currently shown
-let themedDate = null;  // YYYY-MM-DD the current text colors were measured for
+let shownDay = null;    // YYYY-MM-DD of the cat currently in the background
 
 function escapeHtml(s) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -133,15 +132,17 @@ function scheduleTick() {
   setTimeout(() => { tick(); scheduleTick(); }, wait);
 }
 
-function showBackground(dateStr) {
-  if (dateStr === shownDate) return;
+// The photo and its colors change together, once the new photo has arrived.
+function showCat(cat) {
+  if (!cat || cat.day === shownDay) return; // no cat yet: the plain card and the default colors stay
   const img = new Image();
   img.onload = () => {
     $bg.src = img.src;
     $bg.classList.add("ready");
-    shownDate = dateStr;
+    applyTheme(cat.theme);
+    shownDay = cat.day;
   };
-  img.src = `/cat/today.jpg?d=${encodeURIComponent(dateStr)}`;
+  img.src = `/cat/today.jpg?d=${encodeURIComponent(cat.day)}`;
 }
 
 function rgbTriplet(hex) {
@@ -155,29 +156,16 @@ function applyTheme(theme) {
   root.setProperty("--halo-a", String(theme.halo_alpha));
 }
 
-async function showTheme(dateStr) {
-  if (dateStr === themedDate) return;
-  try {
-    const res = await fetch(`/cat/today.json?d=${encodeURIComponent(dateStr)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    applyTheme((await res.json()).theme);
-    themedDate = dateStr;
-  } catch (err) {
-    console.warn("kittyson theme failed:", err); // default colors stay, next poll retries
-  }
-}
-
 async function poll() {
   try {
     const res = await fetch(API, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const fresh = await res.json();
-    const serverMs = Date.parse(`${fresh.date}T${fresh.time}Z`);
+    const { widget, cat } = await res.json();
+    const serverMs = Date.parse(`${widget.date}T${widget.time}Z`);
     if (!Number.isNaN(serverMs)) offsetMs = serverMs - Date.now();
-    data = fresh;
+    data = widget;
     show();
-    showBackground(fresh.date);
-    showTheme(fresh.date);
+    showCat(cat);
   } catch (err) {
     // Keep the clock running on whatever we had.
     console.warn("kittyson poll failed:", err);

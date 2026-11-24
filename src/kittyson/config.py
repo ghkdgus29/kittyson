@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     cat_size: int = 1024
 
-    # A pixabay.com API key (free, pixabay.com/api/docs). With it the cats come from Pixabay, without it from cataas.com.
+    # A pixabay.com API key (free, pixabay.com/api/docs). The cats come from Pixabay: without a key no new cat is made.
     pixabay_key: str = ""
     # The model that looks at a Pixabay photo to see whether it is a cat. A full model id or a claude CLI alias.
     cat_model: str = "claude-opus-5-5"
@@ -28,16 +28,17 @@ class Settings(BaseSettings):
     # The model that picks the day's quote.
     quote_model: str = "claude-opus-5-5"
 
+    # Where to say that a day's cat or quote could not be made: a Telegram bot's token and the chat it writes to.
+    # Without them a failure is only logged.
+    telegram_token: str = ""
+    telegram_chat: str = ""
+
     data_dir: Path = Path("data")
 
     # Log file cap: one file is at most log_max_mb, and log_backups older files are kept.
     # Total on disk: log_max_mb x (log_backups + 1).
     log_max_mb: int = 5
     log_backups: int = 3
-
-    @property
-    def cats_inbox(self) -> Path:
-        return self.data_dir / "cats" / "inbox"
 
     @property
     def cats_daily(self) -> Path:

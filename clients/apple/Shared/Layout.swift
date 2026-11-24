@@ -44,7 +44,7 @@ struct Rules {
 
     /// The watch: everything gives way to a bigger font, and the rows spread over the whole height.
     static let compact = Rules(
-        keys: ["time": "t", "date": "d", "weekday": "wd", "weather": "wx", "quote": "q", "count": "n", "timer": "tm"],
+        keys: ["time": "t", "date": "d", "weather": "wx", "quote": "q", "count": "n", "timer": "tm"],
         indent: 0, oneRow: [], under: ["weather"], shrinkStub: false, gap: 0, maxGap: .infinity)
 }
 
@@ -159,6 +159,11 @@ struct Clock {
     var midnight: Date { Calendar.current.startOfDay(for: now) }
 
     var date: String { now.formatted(Date.ISO8601FormatStyle(timeZone: .current).year().month().day()) }
+
+    /// "26-11-15 일": the date and the weekday in one row, for the watch. The server's weekdays are Korean too.
+    var shortDate: String {
+        "\(date.dropFirst(2)) \(now.formatted(Date.FormatStyle(locale: Locale(identifier: "ko_KR")).weekday(.abbreviated)))"
+    }
 
     /// "time" is a live timer counting from midnight. It drops leading zeros (14:01:53,
     /// 9:01:53, 12:34, 5:03), so this is the text to put in front of it.
