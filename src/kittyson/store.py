@@ -31,29 +31,24 @@ class DayStore[T: DayRecord]:
     def __init__(self, directory: Path, model: type[T]):
         self._dir = directory
         self._model = model
-        self._loaded: dict[date, T] = {}  # a saved record does not change, so it is read from disk once
 
     def path(self, day: date, suffix: str = ".json") -> Path:
         return self._dir / f"{day.isoformat()}{suffix}"
 
     def load(self, day: date) -> T | None:
-        if day in self._loaded:
-            return self._loaded[day]
+        """Read from the file each time: it is a few hundred bytes, and nothing is kept in memory."""
         path = self.path(day)
         try:
             saved = json.loads(path.read_text(encoding="utf-8"))
-            record = self._model.model_validate({**saved, "day": day})
+            return self._model.model_validate({**saved, "day": day})
         except FileNotFoundError:
             return None
         except (ValueError, TypeError) as exc:  # not JSON, or not the fields of this record
             log.warning("unreadable %s: %s", path, exc)
             return None
-        self._loaded[day] = record
-        return record
 
     def save(self, record: T) -> None:
         write(self.path(record.day), record.model_dump_json(indent=2).encode())
-        self._loaded[record.day] = record
 
     def days(self) -> list[date]:
         """The saved days, newest first."""
