@@ -79,7 +79,7 @@
 - `weather`: `아이콘 기온 ↑최고 ↓최저`. 기온은 정수로 반올림. 서버가 조립. 클라이언트는 이 줄을 다음 줄로 넘기지 않는다.
 - `quote`: 오늘의 명언. 화면은 JSON을 그대로 보여주므로 접두어 없이 문장만 둔다.
 - `by`: 그 명언을 말한 사람의 이름. 직함이나 출처 없이 이름만.
-- 고양이 이미지 URL은 JSON에 넣지 않고 `GET /cat/today.jpg` 로 고정한다. 글자색(`theme`)도 화면에 보이는 JSON에는 넣지 않는다. `GET /api/today` 가 `{"widget": 위 JSON, "cat": {"day", "source", "theme"}}` 를 한 번에 준다(2026-11-24 변경. 전에는 `/api/widget` 과 `/cat/today.json` 을 따로 불렀다. 두 경로는 앱스토어 1.0 앱이 쓰고 있어서 남겨 둔다).
+- 고양이 이미지 URL은 JSON에 넣지 않고 `GET /cat/today.jpg` 로 고정한다. 글자색(`theme`)도 화면에 보이는 JSON에는 넣지 않는다. `GET /api/today` 가 `{"widget": 위 JSON, "cat": {"day", "source", "theme"}}` 를 한 번에 준다(2026-11-24 변경. 전에는 `/api/widget` 과 `/cat/today.json` 을 따로 불렀다. 두 경로는 없앴다).
 
 ### 초 단위 시간을 다루는 방법
 
@@ -107,7 +107,7 @@ JS는 폴링 때 받은 `date` + `time` 과 기기 시계의 차이(offset)를 �
 kittyson/
 ├── pyproject.toml
 ├── src/kittyson/
-│   ├── main.py        # FastAPI 앱: /, /api/today, /cat/today.jpg (+ 1.0 앱용 /api/widget, /cat/today.json)
+│   ├── main.py        # FastAPI 앱: /, /api/today, /cat/today.jpg
 │   ├── config.py      # 위치(서울 위경도), 타임존, 키와 토큰 (.env로 덮어쓰기). 싱글톤 `settings`
 │   ├── deps.py        # 한 번 만들어 같이 쓰는 것들: 날씨 서비스, 오늘의 고양이, 오늘의 명언, 스케줄러
 │   ├── logs.py        # 로그 설정: stderr + data/logs/app.log (크기 상한)
@@ -141,7 +141,6 @@ kittyson/
 | `GET /` | kittyson 화면 |
 | `GET /api/today` | 사진을 뺀 오늘 전부: `widget`(확정 JSON)과 `cat`(사진의 날짜, 출처, 글자색 `theme`) (2026-11-24 추가) |
 | `GET /cat/today.jpg` | 오늘의 고양이. 가운데 1:1 크롭, 1024×1024 |
-| `GET /api/widget`, `GET /cat/today.json` | `/api/today` 의 두 부분을 따로 주는 예전 경로. 앱스토어 1.0 앱용으로 남겨 둔다 |
 | `GET /healthz` | 상태 확인 |
 
 ### 각 데이터의 출처

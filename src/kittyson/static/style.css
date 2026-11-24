@@ -1,6 +1,6 @@
 :root {
   --bg: #000;
-  /* Defaults until /cat/today.json says what suits today's photo. */
+  /* Defaults until /api/today says what suits today's photo. */
   --punct: #ffffff;
   --key: #9cdcfe;
   --str: #ffd9a8;

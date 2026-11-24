@@ -93,16 +93,6 @@ def test_cat_photo_is_a_jpeg(client: TestClient):
     assert r.content[:2] == b"\xff\xd8"
 
 
-def test_the_first_app_still_gets_its_two_answers(client: TestClient):
-    r = client.get("/api/widget")
-    assert r.status_code == 200 and r.headers["cache-control"] == "no-store"
-    assert r.json() == {**client.get("/api/today").json()["widget"], "time": r.json()["time"]}
-    assert list(r.json()) == WIDGET_KEYS  # it draws every key it is sent, so no other may be added here
-
-    cat = client.get("/api/today").json()["cat"]
-    assert client.get("/cat/today.json").json() == {"date": cat["day"], "source": "fake", "theme": cat["theme"]}
-
-
 def test_before_anything_is_made_there_is_the_list_quote_and_no_cat(data: Path, monkeypatch: pytest.MonkeyPatch):
     nothing_can_be_made(monkeypatch)
     with TestClient(app) as client:
@@ -110,7 +100,6 @@ def test_before_anything_is_made_there_is_the_list_quote_and_no_cat(data: Path, 
         assert body["cat"] is None
         assert (body["widget"]["quote"], body["widget"]["by"]) == (fallback(today()).line, fallback(today()).by)
         assert client.get("/cat/today.jpg").status_code == 503
-        assert client.get("/cat/today.json").status_code == 503
     assert not list(data.glob("cats/daily/*")) and not list(data.glob("quotes/*"))  # a request makes nothing
 
 

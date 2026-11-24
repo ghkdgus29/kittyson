@@ -78,21 +78,3 @@ async def cat_today(cats: DailyCatDep):
     if cat is None:
         return JSONResponse({"error": "no cat yet"}, status_code=503)
     return FileResponse(cats.photo(cat), media_type="image/jpeg", headers={"Cache-Control": "public, max-age=300"})
-
-
-# The two routes below are what the first app in the App Store (1.0) asks. /api/today has both in one answer.
-
-
-@app.get("/api/widget", response_model=Widget)
-async def widget(weather: WeatherDep, quotes: DailyQuoteDep):
-    body = await lines(clock.now(settings.tz), weather, quotes)
-    return JSONResponse(body.model_dump(), headers={"Cache-Control": "no-store"})
-
-
-@app.get("/cat/today.json")
-async def cat_today_meta(cats: DailyCatDep):
-    cat = cats.get(clock.today(settings.tz))
-    if cat is None:
-        return JSONResponse({"error": "no cat yet"}, status_code=503)
-    body = {"date": cat.day.isoformat(), "source": cat.source, "theme": cat.theme.model_dump()}
-    return JSONResponse(body, headers={"Cache-Control": "public, max-age=300"})

@@ -26,7 +26,6 @@ uv run pytest
 | `/` | 화면 (정사각형 카드) |
 | `/api/today` | 사진을 뺀 오늘 전부. `widget` 은 위 JSON이고(`time`, `date` 는 요청 순간의 서버 시각, 24시간제), `cat` 은 사진의 날짜와 출처, 그 사진 위에서 잘 읽히는 글자색(`theme`)이다. 고양이가 아직 한 장도 없으면 `cat` 은 `null` |
 | `/cat/today.jpg` | 오늘의 고양이, 1024×1024 |
-| `/api/widget`, `/cat/today.json` | `/api/today` 의 `widget` 과 `cat` 을 따로 주는 예전 경로. 앱스토어의 1.0 앱이 쓰고 있어서 남겨 둔다 |
 | `/healthz` | 상태 |
 
 ## 하루치 미리 만들기

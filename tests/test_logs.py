@@ -34,13 +34,13 @@ def under_uvicorn(monkeypatch: pytest.MonkeyPatch):
 def test_app_and_uvicorn_lines_reach_the_file(log_dir: Path, under_uvicorn):
     logs.configure()
     logging.getLogger("kittyson.cats").info("cat of the day")
-    logging.getLogger("uvicorn.access").info("GET /api/widget 200")
+    logging.getLogger("uvicorn.access").info("GET /api/today 200")
     logging.getLogger("uvicorn.error").info("Application startup complete.")
 
     lines = (log_dir / "app.log").read_text(encoding="utf-8").splitlines()
     assert [line.split(" ", 2)[2] for line in lines] == [
         "INFO kittyson.cats: cat of the day",
-        "INFO uvicorn.access: GET /api/widget 200",
+        "INFO uvicorn.access: GET /api/today 200",
         "INFO uvicorn.error: Application startup complete.",
     ]
 
