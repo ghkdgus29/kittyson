@@ -126,4 +126,4 @@ uv run pytest
 - 로그는 두 곳에 남는다. `docker compose logs`(컨테이너를 다시 만들면 사라짐, 10MB × 3개 상한)와 `~/kittyson/data/logs/app.log`(계속 남음, 5MB × 4개 = 최대 20MB에서 오래된 것부터 지워짐).
 - `~/kittyson/data`가 볼륨이다. 날짜별 고양이(`cats/daily`), 날짜별 명언(`quotes`), 로그(`logs`)가 여기에 있다.
 
-설정은 `.env.example` 참고. 계획은 `PLAN.md`. 코드를 읽는 순서는 [READING_ORDER.md](READING_ORDER.md).
+설정은 `.env.example` 참고. 계획은 `PLAN.md`. 2026-11-24에 바뀐 것은 [CHANGES.md](CHANGES.md).
