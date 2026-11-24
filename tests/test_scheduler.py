@@ -58,7 +58,7 @@ async def test_before_23_only_today_is_made_and_from_23_on_tomorrow_too():
     assert cat.tries == [TODAY, TOMORROW]
 
 
-async def test_a_failure_is_told_once_and_tried_again_later_each_time_a_little_later():
+async def test_a_failure_is_told_once_and_tried_again_every_ten_minutes():
     cat, notifier = FakeJob(failures=2), FakeNotifier()
     scheduler = Scheduler([cat], notifier, TZ)
 
@@ -66,13 +66,13 @@ async def test_a_failure_is_told_once_and_tried_again_later_each_time_a_little_l
     assert len(cat.tries) == 1 and len(notifier.sent) == 1
     assert "2026-11-24 고양이" in notifier.sent[0] and "pixabay search answered 500" in notifier.sent[0]
 
-    await scheduler.tick(at(10, 29))
-    assert len(cat.tries) == 1                # 30 minutes are not over
-    await scheduler.tick(at(10, 30))
+    await scheduler.tick(at(10, 9))
+    assert len(cat.tries) == 1                # ten minutes are not over
+    await scheduler.tick(at(10, 10))
     assert len(cat.tries) == 2                # the second failure
-    await scheduler.tick(at(11, 29))
-    assert len(cat.tries) == 2                # now an hour has to pass
-    await scheduler.tick(at(11, 30))
+    await scheduler.tick(at(10, 19))
+    assert len(cat.tries) == 2                # ten minutes again, no longer
+    await scheduler.tick(at(10, 20))
     assert cat.made == [TODAY]
     assert len(notifier.sent) == 1            # only the first failure was told
 
@@ -83,7 +83,10 @@ async def test_after_the_last_try_the_day_is_left_alone_and_that_is_told_too():
 
     now = at(23, 0, TODAY - timedelta(days=1))  # 23:00 the evening before, for TODAY
     for _ in range(24 * 60):
+        before = len([day for day in cat.tries if day == TODAY])
         await scheduler.tick(now)
+        if len([day for day in cat.tries if day == TODAY]) > before:
+            assert now.date() < TODAY           # every try is over before the day begins
         now += timedelta(minutes=1)
 
     todays = [day for day in cat.tries if day == TODAY]

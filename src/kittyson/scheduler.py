@@ -1,8 +1,9 @@
 """Makes each day's cat and quote ahead of the day, so a request only reads what is there.
 
 From 23:00 on, tomorrow's are made. Today's are made too whenever they are missing: on the
-first start, or after a night the server was off. What fails is tried again, a little later
-each time, and the person who runs the server is told (notify.py).
+first start, or after a night the server was off. What fails is tried again every ten minutes,
+so the evening's tries are over before the day begins, and the person who runs the server is
+told (notify.py).
 """
 
 import asyncio
@@ -28,8 +29,8 @@ class Scheduler:
     AT = time(23, 0)          # tomorrow's are made from this time on
     EVERY = 60                # seconds between two looks at the clock
     JOB_TIMEOUT = 5 * 60      # seconds one making may take
-    RETRY = timedelta(minutes=30)  # after the first failure. Doubles with each further one
-    MAX_TRIES = 6             # 23:00, 23:30, 00:30, 02:30, 06:30, 14:30. Then the day goes without
+    RETRY = timedelta(minutes=10)  # between two tries
+    MAX_TRIES = 6             # 23:00, 23:10, 23:20, 23:30, 23:40, 23:50. Then the day goes without
 
     def __init__(self, jobs: list[Job], notifier: Notifier | None, tz: str):
         self._jobs = jobs
@@ -65,7 +66,7 @@ class Scheduler:
 
     async def _make(self, job: Job, day: date, now: datetime) -> None:
         tries, last = self._failed.get((job.name, day), (0, now))
-        if tries >= self.MAX_TRIES or (tries and now - last < self.RETRY * 2 ** (tries - 1)):
+        if tries >= self.MAX_TRIES or (tries and now - last < self.RETRY):
             return
         try:
             await asyncio.wait_for(job.make(day), self.JOB_TIMEOUT)
@@ -81,7 +82,7 @@ class Scheduler:
             return
         if tries < self.MAX_TRIES:
             minutes = int(self.RETRY.total_seconds() // 60)
-            ending = f"{minutes}분 뒤부터 간격을 늘려 가며 {self.MAX_TRIES - tries}번 더 시도합니다."
+            ending = f"{minutes}분 간격으로 {self.MAX_TRIES - tries}번 더 시도합니다."
         else:
             ending = f"{tries}번 모두 실패해서 더 시도하지 않습니다. 이 날은 가장 최근 고양이, 목록에 있는 명언이 대신 나옵니다."
         reason = f"{type(exc).__name__}: {exc}"[:300]
