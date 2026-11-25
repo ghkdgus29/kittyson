@@ -11,7 +11,7 @@
 | `save_square` 를 스레드풀로 빼기 | 자르고 글자색을 재는 `DailyCat._save` 를 `asyncio.to_thread` 로 돌린다. |
 | 이미지 중복 검증 (id 필요) | 그날의 기록에 Pixabay 사진 id(`Cat.id`)와 건너뛴 사진의 id(`Cat.skipped`)를 남긴다. 새로 고를 때 지금까지의 id(`CatStore.seen()`)는 건너뛴다. |
 | provider의 랜덤성 빼기 | 사진은 Pixabay에서만 가져온다(`cats/local.py`, `cats/cataas.py` 삭제). 인기순 검색 결과에서 아직 쓰지 않은 첫 고양이 사진을 고른다([cats/pixabay.py](src/kittyson/cats/pixabay.py)). 같은 상태에서는 항상 같은 사진이다. |
-| 요청 때 만들지 말고 스케줄러로 매일 하나 만들어 두기 | [scheduler.py](src/kittyson/scheduler.py)가 매일 23:00에 다음 날의 고양이와 명언을 만든다. 서버가 뜰 때 오늘 것이 없으면 그것도 만든다. 요청은 저장된 것을 읽기만 한다(`get`). 만드는 일(`make`)은 스케줄러만 부른다. |
+| 요청 때 만들지 말고 스케줄러로 매일 하나 만들어 두기 | [scheduler.py](src/kittyson/scheduler.py)가 하루에 한 번, 23:00 정각에 다음 날의 고양이와 명언을 만든다(그때까지는 자고 있고, 중간에 확인하지 않는다). 서버가 뜰 때도 한 번 돌아서, 오늘 것이 없으면 만든다. 요청은 저장된 것을 읽기만 한다(`get`). 만드는 일(`make`)은 스케줄러만 부른다. |
 | 만들기에 실패하면 알림 받기 | 10분마다 여섯 번까지 해 본다(23:00부터 23:50까지). 처음 실패했을 때와 포기할 때 텔레그램으로 알린다([notify.py](src/kittyson/notify.py)). 그날 고양이가 없으면 가장 최근 고양이가 나온다. |
 | 서빙 API를 (이미지만 빼고) 하나로 합치기 | `GET /api/today` 가 화면의 줄(`widget`)과 고양이(`cat`: 날짜, 출처, 글자색)를 한 번에 준다. 사진은 `GET /cat/today.jpg`. 예전 `/api/widget`, `/cat/today.json` 은 없앴다. |
 
