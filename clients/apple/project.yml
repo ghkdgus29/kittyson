@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2"   # the build number of all four bundles. Raise it for every upload
     CODE_SIGN_STYLE: Automatic
 
 targets:
@@ -27,6 +27,8 @@ targets:
       path: Config/App-Info.plist
       properties:
         CFBundleDisplayName: kittyson
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
         NSLocalNetworkUsageDescription: 집 안의 kittyson 서버에서 고양이와 JSON을 받아옵니다.
@@ -53,6 +55,8 @@ targets:
       path: Config/Widget-Info.plist
       properties:
         CFBundleDisplayName: kittyson
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
         NSExtension: {NSExtensionPointIdentifier: com.apple.widgetkit-extension}
@@ -72,6 +76,8 @@ targets:
       path: Config/WatchApp-Info.plist
       properties:
         CFBundleDisplayName: kittyson
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
         ITSAppUsesNonExemptEncryption: false   # HTTPS only, so no export paperwork at upload
@@ -96,6 +102,8 @@ targets:
       path: Config/WatchWidget-Info.plist
       properties:
         CFBundleDisplayName: kittyson
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         KittysonServer: $(KITTYSON_SCHEME)://$(KITTYSON_HOST)
         NSAppTransportSecurity: {NSAllowsLocalNetworking: true}   # HTTP only for a server at home
         NSExtension: {NSExtensionPointIdentifier: com.apple.widgetkit-extension}

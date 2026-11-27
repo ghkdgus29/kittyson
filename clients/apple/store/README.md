@@ -31,7 +31,8 @@ JSON은 개발자가 데이터를 적을 때 쓰는 형식입니다. "weekday": 
   "date": "2026-11-21",
   "weekday": "토요일",
   "weather": "맑음 12° ↑15 ↓7",
-  "quote": "시련은 있어도 실패는 없다"
+  "quote": "시련은 있어도 실패는 없다",
+  "by": "정주영"
 }
 
 Apple Watch 앱
@@ -61,11 +62,42 @@ iPhone 위젯
 
 ## 심사 메모 (App Review Information, Notes)
 
-kittyson needs no account or sign-in.
+2026-11-23에 App Review가 "Guideline 2.1 - Information Needed"로 여섯 가지를 물었다(실기기 화면 녹화, 앱의 목적, 쓰는 법, 외부 서비스, 지역 차이, 제3자 자료). 아래가 그 답이고, 화면 녹화는 같은 칸 아래의 Attachment에 올린다.
 
-The iPhone app shows today's card (a cat photo with the time, weather and a quote written as JSON) and a short guide. The main features are the iPhone Home Screen widget and the Apple Watch app. On the watch, turn the Digital Crown to switch between four modes: JSON, timer, counter and photo.
+```
+Reply to Guideline 2.1 - Information Needed. Build 1.0 (2) replaces build 1.0 (1).
 
-The photo and the JSON come from our server at https://kit-son.site, which is public and needs no login. The weather is for Seoul. Cat photos come from Pixabay.
+kittyson has no account, no sign-in, no user-generated content and no paid content.
+
+1. Screen recording
+Attached below (Attachment). It was recorded on a physical iPhone and Apple Watch, starts with launching the app, and shows the iPhone app, the Home Screen widget and the four modes of the Apple Watch app.
+
+2. Purpose and audience
+kittyson is a small clock app for people who like cats, and for developers who enjoy seeing their day written as JSON. Over a cat photo that changes once a day it shows the time, date, weekday, the weather in Seoul and a quote of the day, as JSON text. It gives a watch screen and a Home Screen widget that are readable at a glance and pleasant to look at. On Apple Watch it also has a timer and a tap counter.
+
+3. How to reach the main features
+No setup, login or sample files are needed. The app only needs an internet connection.
+- iPhone app: open it. It shows today's card and a short guide.
+- iPhone widget: touch and hold the Home Screen > Edit > Add Widget > kittyson.
+- Apple Watch app: open kittyson on the watch. Turn the Digital Crown to switch between four modes: JSON, timer, counter, photo.
+- Timer: tap one of the four lengths to start it. Double-tap to cancel. When it ends the watch taps the wrist; one tap puts it away. Touch and hold a length to change it with the Digital Crown (1 to 60 minutes).
+- Counter: one tap adds 1, a double tap takes 1 off, a triple tap resets to 0.
+- Watch complications: touch and hold the watch face > Edit > Complications > kittyson (weather and quote).
+
+4. External services
+The app talks to one server only, our own, at https://kit-son.site. It is public and needs no login. It gives the app the day's photo and the JSON.
+Behind the app, our server uses:
+- Pixabay (pixabay.com) for the cat photos
+- Open-Meteo (open-meteo.com) for the weather
+- Anthropic's Claude API to pick each day's quote from well-known quotations of real people, and to check that a photo shows a cat
+There is no authentication service, payment processor, advertising or analytics.
+
+5. Regional differences
+The app is offered in South Korea only. Its text is Korean and the weather is for Seoul. It works the same way everywhere.
+
+6. Regulated industry and third-party material
+The app is not in a regulated industry. The cat photos come from Pixabay under the Pixabay Content License, which allows use in apps without permission or attribution. The quotes are short quotations from real people, each shown with the person's name.
+```
 
 ## 스크린샷
 
